@@ -43,6 +43,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }()
 
     private lazy var filter: CIFilter? = self.minecraft
+
+    // TODO how to do this queue safe?
+    private var sceneViewSize = CGSize.zero
+    private var orientation = UIInterfaceOrientation.unknown
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +66,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // other UI stuff
         self.imageView.addSubview(self.textureView)
         self.imageView.shadowIsEnabled = true
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        self.sceneViewSize = self.sceneView.bounds.size
+        self.orientation =
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -95,6 +105,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let faceNode = SCNNode(geometry: faceGeometry)
         faceNode.opacity = 0
 
+        // TODO can this be a child of face?
         // box node
         let box = SCNBox(width: 0.22, height: 0.22, length: 0.22, chamferRadius: 0)
         box.firstMaterial?.diffuse.contents = UIColor.red.withAlphaComponent(0.75)
@@ -123,6 +134,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     private func update(_ boxNode: SCNNode, with faceNode: SCNNode) {
 
+        // TODO need to x invert texture if flattened
+//        boxNode.transform = SCNMatrix4MakeScale(1.0, 1.0, 0)
+
         // position box over face/head
         boxNode.worldPosition = faceNode.worldPosition
         boxNode.worldOrientation = faceNode.worldOrientation
@@ -131,7 +145,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // TODO need correct orientation and view port size
         // TODO this needs to be set thread safely
         let orientation = UIInterfaceOrientation.landscapeRight
-        let viewportSize = CGSize(width: 812, height: 375)
+        let viewportSize = self.sceneViewSize
 
         // capture image from frame
         // this is always 1440x1080
