@@ -14,6 +14,7 @@ import VideoToolbox
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
+    // TODO rename and explain what each does
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet var screenView: UIView!
     @IBOutlet var imageView: UIImageView!
@@ -26,6 +27,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         view.backgroundColor = .red
         return view
     }()
+
+    private let context = CIContext()
+
+    private let security: CIFilter? = {
+        let filter = CIFilter(name: "CIPixellate")
+        filter?.setValue(32.0, forKey: kCIInputScaleKey)
+        return filter
+    }()
+
+    private let minecraft: CIFilter? = {
+        let filter = CIFilter(name: "CIPixellate")
+        filter?.setValue(16.0, forKey: kCIInputScaleKey)
+        return filter
+    }()
+
+    private lazy var filter: CIFilter? = self.minecraft
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +93,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let device = self.sceneView.device else { return nil }
         let faceGeometry = ARSCNFaceGeometry(device: device)
         let faceNode = SCNNode(geometry: faceGeometry)
-//        faceNode.opacity = 0
+        faceNode.opacity = 0
 
         // box node
         let box = SCNBox(width: 0.22, height: 0.22, length: 0.22, chamferRadius: 0)
@@ -84,7 +101,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         box.firstMaterial?.fillMode = .fill
         let boxNode = SCNNode(geometry: box)
         boxNode.castsShadow = true
-//        boxNode.opacity = 0.8
+//        boxNode.opacity = 0.9
         self.sceneView.scene.rootNode.addChildNode(boxNode)
         self.boxNode = boxNode
         self.update(boxNode, with: faceNode)
@@ -126,13 +143,17 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let bufferSize = CGSize(width: bufferWidth, height: bufferHeight)
         let transform = frame.displayTransform(for: orientation,
                                                viewportSize: bufferSize)
-        let ciImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
+        var ciImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
 
-        // TODO FX on CIImage?
+        // TODO can filter be applied to only a portion of image?
+        // this works but kills framerate
+        if let filter = self.filter {
+            filter.setValue(ciImage, forKey: kCIInputImageKey)
+            ciImage = filter.outputImage ?? ciImage
+        }
 
         // convert CIImage to CGImage
-        let context = CIContext()
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
+        guard let cgImage = self.context.createCGImage(ciImage, from: ciImage.extent) else { return }
 
         // face to bounding
         let rootNode = self.sceneView.scene.rootNode
