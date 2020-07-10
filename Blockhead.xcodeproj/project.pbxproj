@@ -26,6 +26,7 @@
 		53C4F59D24B3ACE800AC2C88 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		53C4F59F24B3ACE800AC2C88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		53C4F5A524B7D8FA00AC2C88 /* UIView+Shadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Shadow.swift"; sourceTree = "<group>"; };
+		53D0EE9624B8DE98000C951A /* Blockhead.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Blockhead.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +43,7 @@
 		53C4F58524B3ACE700AC2C88 = {
 			isa = PBXGroup;
 			children = (
+				53D0EE9624B8DE98000C951A /* Blockhead.xcconfig */,
 				53C4F59024B3ACE700AC2C88 /* Blockhead */,
 				53C4F58F24B3ACE700AC2C88 /* Products */,
 			);
@@ -172,6 +174,7 @@
 /* Begin XCBuildConfiguration section */
 		53C4F5A024B3ACE800AC2C88 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 53D0EE9624B8DE98000C951A /* Blockhead.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -232,6 +235,7 @@
 		};
 		53C4F5A124B3ACE800AC2C88 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 53D0EE9624B8DE98000C951A /* Blockhead.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -289,7 +293,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 83TB42W5AV;
 				INFOPLIST_FILE = Blockhead/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -307,7 +310,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 83TB42W5AV;
 				INFOPLIST_FILE = Blockhead/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
