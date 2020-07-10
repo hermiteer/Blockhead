@@ -32,7 +32,7 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fvk-oM-jxp">
-                                <rect key="frame" x="62" y="208" width="44" height="44"/>
+                                <rect key="frame" x="20" y="208" width="44" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="ppK-zp-hGx"/>
                                     <constraint firstAttribute="height" constant="44" id="tPw-xX-Q8a"/>
@@ -43,11 +43,21 @@
                                     <action selector="boxButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="8uu-Mz-MgS"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1WM-sU-qfb">
-                                <rect key="frame" x="62" y="268" width="44" height="44"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7ar-hS-DTi">
+                                <rect key="frame" x="80" y="208" width="44" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="HEb-Vw-eE8"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="nXo-nd-9Wl"/>
+                                    <constraint firstAttribute="width" constant="44" id="Ghv-N2-H2p"/>
+                                    <constraint firstAttribute="height" constant="44" id="uYm-ah-Er6"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" image="Pixellate-full"/>
+                                <connections>
+                                    <action selector="pixellateButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="ZgZ-zS-nqb"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1WM-sU-qfb">
+                                <rect key="frame" x="20" y="268" width="44" height="44"/>
+                                <constraints>
                                     <constraint firstAttribute="height" constant="44" id="odi-eq-svy"/>
                                     <constraint firstAttribute="width" constant="44" id="qmJ-SG-aVv"/>
                                 </constraints>
@@ -58,14 +68,10 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JU5-DV-shj">
-                                <rect key="frame" x="62" y="328" width="44" height="44"/>
+                                <rect key="frame" x="80" y="268" width="44" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="44" id="178-yk-l3M"/>
                                     <constraint firstAttribute="height" constant="44" id="2zc-ty-AII"/>
-                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="44" id="5bf-hv-MvZ"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="GbL-hP-ygC"/>
                                     <constraint firstAttribute="width" constant="44" id="gY5-OI-RFR"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="lXr-5k-x49"/>
                                 </constraints>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" image="Screen-full"/>
@@ -76,17 +82,19 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="JU5-DV-shj" firstAttribute="centerX" secondItem="1WM-sU-qfb" secondAttribute="centerX" id="1Ee-qx-zps"/>
                             <constraint firstItem="ZeP-ld-GFO" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="20" id="1Tb-Yi-dAz"/>
-                            <constraint firstItem="1WM-sU-qfb" firstAttribute="top" secondItem="Fvk-oM-jxp" secondAttribute="bottom" constant="16" id="BZy-9B-gsz"/>
-                            <constraint firstItem="JU5-DV-shj" firstAttribute="top" secondItem="1WM-sU-qfb" secondAttribute="bottom" constant="16" id="FpR-4L-Od3"/>
+                            <constraint firstItem="1WM-sU-qfb" firstAttribute="top" secondItem="Fvk-oM-jxp" secondAttribute="bottom" constant="16" id="1hG-tM-GE3"/>
+                            <constraint firstItem="JU5-DV-shj" firstAttribute="top" secondItem="7ar-hS-DTi" secondAttribute="bottom" constant="16" id="HRl-du-cDg"/>
+                            <constraint firstItem="Fvk-oM-jxp" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="16" id="RfC-nY-o6F"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="Umz-t1-CKx"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="trailing" secondItem="U0K-SW-4ec" secondAttribute="trailing" id="XyZ-9z-H8e"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="U0K-SW-4ec" secondAttribute="leading" id="YJI-PW-bce"/>
-                            <constraint firstItem="Fvk-oM-jxp" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="16" id="ZTg-GN-1PF"/>
-                            <constraint firstItem="Fvk-oM-jxp" firstAttribute="centerX" secondItem="ZeP-ld-GFO" secondAttribute="centerX" id="i1n-Xg-uSp"/>
+                            <constraint firstItem="JU5-DV-shj" firstAttribute="centerX" secondItem="7ar-hS-DTi" secondAttribute="centerX" id="d4X-wA-Rgr"/>
+                            <constraint firstItem="7ar-hS-DTi" firstAttribute="leading" secondItem="Fvk-oM-jxp" secondAttribute="trailing" constant="16" id="hPq-IP-Two"/>
+                            <constraint firstItem="Fvk-oM-jxp" firstAttribute="leading" secondItem="ZeP-ld-GFO" secondAttribute="leading" id="kvI-PF-Pm3"/>
                             <constraint firstAttribute="bottom" secondItem="BrB-h1-WRS" secondAttribute="bottom" id="nOl-xa-8ys"/>
-                            <constraint firstItem="1WM-sU-qfb" firstAttribute="centerX" secondItem="Fvk-oM-jxp" secondAttribute="centerX" id="vWQ-pT-i92"/>
+                            <constraint firstItem="1WM-sU-qfb" firstAttribute="centerX" secondItem="Fvk-oM-jxp" secondAttribute="centerX" id="w6M-R1-mLG"/>
+                            <constraint firstItem="7ar-hS-DTi" firstAttribute="centerY" secondItem="Fvk-oM-jxp" secondAttribute="centerY" id="yO4-3a-Lnv"/>
                             <constraint firstItem="ZeP-ld-GFO" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" constant="20" id="zhQ-TT-uJb"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
@@ -107,6 +115,7 @@
     <resources>
         <image name="Box-full" width="44" height="44"/>
         <image name="Face-full" width="44" height="44"/>
+        <image name="Pixellate-full" width="44" height="44"/>
         <image name="Screen-full" width="44" height="44"/>
     </resources>
 </document>

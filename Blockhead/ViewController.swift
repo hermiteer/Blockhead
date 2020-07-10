@@ -30,13 +30,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     private let context = CIContext()
 
-    private let security: CIFilter? = {
+    private let blocky: CIFilter? = {
         let filter = CIFilter(name: "CIPixellate")
         filter?.setValue(32.0, forKey: kCIInputScaleKey)
         return filter
     }()
 
-    private let minecraft: CIFilter? = {
+    private let chunky: CIFilter? = {
         let filter = CIFilter(name: "CIPixellate")
         filter?.setValue(16.0, forKey: kCIInputScaleKey)
         return filter
@@ -45,11 +45,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // TODO filters lower frame rate
     private lazy var filter: CIFilter? = nil//self.minecraft
 
-    // TODO how to do this queue safe?
+    // TODO queue safe?
     private var sceneViewSize = CGSize.zero
     private var orientation = UIInterfaceOrientation.unknown
 
-    // TODO should be protected
+    // TODO queue safe?
     private var faceNode: SCNNode?
     private var boxNode: SCNNode?
 
@@ -110,6 +110,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                 default: return UIImage(named: "Screen-none")
             }
         }
+
+        var pixellateImage: UIImage? {
+            switch self {
+                case .full: return UIImage(named: "Pixellate-full")
+                case .some: return UIImage(named: "Pixellate-some")
+                default: return UIImage(named: "Pixellate-none")
+            }
+        }
     }
 
     var boxOpacity: Opacity = .full {
@@ -133,6 +141,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var screenOpacity: Opacity = .none {
         didSet {
             self.screenView.alpha = self.screenOpacity.floatValue
+        }
+    }
+
+    // TODO rename opacity
+    var pixellateAmount: Opacity = .none {
+        didSet {
+            self.sceneView.session.delegateQueue?.async {
+                switch self.pixellateAmount {
+                    case .full: self.filter = self.blocky
+                    case .some: self.filter = self.chunky
+                    case .none: self.filter = nil
+                }
+            }
         }
     }
 
@@ -209,6 +230,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let opacity = self.screenOpacity.next
         self.screenOpacity = opacity
         button.setImage(opacity.screenImage, for: .normal)
+    }
+
+    @IBAction
+    func pixellateButtonTouchUpInside(button: UIButton) {
+        let opacity = self.pixellateAmount.next
+        self.pixellateAmount = opacity
+        button.setImage(opacity.pixellateImage, for: .normal)
     }
 
     // MARK: ARSCNViewDelegate
