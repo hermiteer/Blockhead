@@ -73,7 +73,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.sceneViewSize = self.sceneView.bounds.size
-        self.orientation = UIApplication.shared.statusBarOrientation
+        self.orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation ?? .unknown
     }
     
     override func viewWillAppear(_ animated: Bool) {
