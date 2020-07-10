@@ -42,11 +42,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         return filter
     }()
 
-    private lazy var filter: CIFilter? = self.minecraft
+    // TODO filters lower frame rate
+    private lazy var filter: CIFilter? = nil//self.minecraft
 
     // TODO how to do this queue safe?
     private var sceneViewSize = CGSize.zero
     private var orientation = UIInterfaceOrientation.unknown
+
+    private var boxNode: SCNNode?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,15 +66,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Set the scene to the view
         sceneView.scene = scene
 
-        // other UI stuff
+        // TODO explain this
         self.imageView.addSubview(self.textureView)
-        self.imageView.shadowIsEnabled = true
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.sceneViewSize = self.sceneView.bounds.size
-        self.orientation =
+        self.orientation = UIApplication.shared.statusBarOrientation
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -90,8 +92,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
-    private var boxNode: SCNNode?
 
     // MARK: - ARSCNViewDelegate
 
@@ -141,10 +141,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         boxNode.worldPosition = faceNode.worldPosition
         boxNode.worldOrientation = faceNode.worldOrientation
 
-        // TODO need to support portrait too
-        // TODO need correct orientation and view port size
-        // TODO this needs to be set thread safely
-        let orientation = UIInterfaceOrientation.landscapeRight
+        // limit orientations for now
+        guard self.orientation == .landscapeRight else { return }
+        let orientation = self.orientation
         let viewportSize = self.sceneViewSize
 
         // capture image from frame

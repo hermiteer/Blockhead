@@ -13,7 +13,6 @@
 		53C4F59924B3ACE700AC2C88 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53C4F59724B3ACE700AC2C88 /* Main.storyboard */; };
 		53C4F59B24B3ACE800AC2C88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53C4F59A24B3ACE800AC2C88 /* Assets.xcassets */; };
 		53C4F59E24B3ACE800AC2C88 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53C4F59C24B3ACE800AC2C88 /* LaunchScreen.storyboard */; };
-		53C4F5A624B7D8FA00AC2C88 /* UIView+Shadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4F5A524B7D8FA00AC2C88 /* UIView+Shadow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,7 +24,6 @@
 		53C4F59A24B3ACE800AC2C88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		53C4F59D24B3ACE800AC2C88 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		53C4F59F24B3ACE800AC2C88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		53C4F5A524B7D8FA00AC2C88 /* UIView+Shadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Shadow.swift"; sourceTree = "<group>"; };
 		53D0EE9624B8DE98000C951A /* Project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Project.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,7 +65,6 @@
 				53C4F59A24B3ACE800AC2C88 /* Assets.xcassets */,
 				53C4F59C24B3ACE800AC2C88 /* LaunchScreen.storyboard */,
 				53C4F59F24B3ACE800AC2C88 /* Info.plist */,
-				53C4F5A524B7D8FA00AC2C88 /* UIView+Shadow.swift */,
 			);
 			path = Blockhead;
 			sourceTree = "<group>";
@@ -145,7 +142,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				53C4F59624B3ACE700AC2C88 /* ViewController.swift in Sources */,
-				53C4F5A624B7D8FA00AC2C88 /* UIView+Shadow.swift in Sources */,
 				53C4F59224B3ACE700AC2C88 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
