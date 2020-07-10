@@ -49,13 +49,105 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var sceneViewSize = CGSize.zero
     private var orientation = UIInterfaceOrientation.unknown
 
+    // TODO should be protected
+    private var faceNode: SCNNode?
     private var boxNode: SCNNode?
-    
+
+    // TODO needs to be queue safe
+    // configuration
+    // cube opacity
+    enum Opacity: CaseIterable {
+
+        case full
+        case some
+        case none
+
+        // TODO associated value?
+        var floatValue: CGFloat {
+            switch self {
+                case .full: return 1.0
+                case .some: return 0.5
+                default: return 0.0
+            }
+        }
+
+        // TODO can this be made generic?
+        var next: Opacity {
+            let cases = Opacity.allCases
+            if self == cases.last { return cases[0] }
+            if let index = cases.firstIndex(of: self) { return cases[index + 1] }
+            return cases[0]
+        }
+
+        var title: String {
+            switch self {
+                case .full: return "Full"
+                case .some: return "Some"
+                default: return "None"
+            }
+        }
+
+        var boxImage: UIImage? {
+            switch self {
+                case .full: return UIImage(named: "Box-full")
+                case .some: return UIImage(named: "Box-some")
+                default: return UIImage(named: "Box-none")
+            }
+        }
+
+        var faceImage: UIImage? {
+            switch self {
+                case .full: return UIImage(named: "Face-full")
+                case .some: return UIImage(named: "Face-some")
+                default: return UIImage(named: "Face-none")
+            }
+        }
+
+        var screenImage: UIImage? {
+            switch self {
+                case .full: return UIImage(named: "Screen-full")
+                case .some: return UIImage(named: "Screen-some")
+                default: return UIImage(named: "Screen-none")
+            }
+        }
+    }
+
+    var boxOpacity: Opacity = .full {
+        didSet {
+            self.sceneView.session.delegateQueue?.async {
+                guard let node = self.boxNode else { return }
+                node.opacity = self.boxOpacity.floatValue
+            }
+        }
+    }
+
+    var faceOpacity: Opacity = .none {
+        didSet {
+            self.sceneView.session.delegateQueue?.async {
+                guard let node = self.faceNode else { return }
+                node.opacity = self.faceOpacity.floatValue
+            }
+        }
+    }
+
+    var screenOpacity: Opacity = .none {
+        didSet {
+            self.screenView.alpha = self.screenOpacity.floatValue
+        }
+    }
+
+    // MARK: Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Set the view's delegate
         sceneView.delegate = self
+        sceneView.session.delegateQueue = DispatchQueue(label: "delegate",
+                                                        qos: .userInteractive,
+                                                        attributes: .concurrent,
+                                                        autoreleaseFrequency: .workItem,
+                                                        target: nil)
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
@@ -68,6 +160,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
         // TODO explain this
         self.imageView.addSubview(self.textureView)
+        self.boxOpacity = .full
+        self.faceOpacity = .full
+        self.screenOpacity = .full
     }
 
     override func viewDidLayoutSubviews() {
@@ -93,7 +188,30 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
 
-    // MARK: - ARSCNViewDelegate
+    // MARK: Actions
+
+    @IBAction
+    func boxButtonTouchUpInside(button: UIButton) {
+        let opacity = self.boxOpacity.next
+        self.boxOpacity = opacity
+        button.setImage(opacity.boxImage, for: .normal)
+    }
+
+    @IBAction
+    func faceButtonTouchUpInside(button: UIButton) {
+        let opacity = self.faceOpacity.next
+        self.faceOpacity = opacity
+        button.setImage(opacity.faceImage, for: .normal)
+    }
+
+    @IBAction
+    func screenButtonTouchUpInside(button: UIButton) {
+        let opacity = self.screenOpacity.next
+        self.screenOpacity = opacity
+        button.setImage(opacity.screenImage, for: .normal)
+    }
+
+    // MARK: ARSCNViewDelegate
 
     // Add node for discovered face anchor
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
@@ -103,20 +221,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let device = self.sceneView.device else { return nil }
         let faceGeometry = ARSCNFaceGeometry(device: device)
         let faceNode = SCNNode(geometry: faceGeometry)
-        faceNode.opacity = 0
+        faceNode.opacity = self.faceOpacity.floatValue
+        self.faceNode = faceNode
 
-        // TODO can this be a child of face?
         // box node
         let box = SCNBox(width: 0.22, height: 0.22, length: 0.22, chamferRadius: 0)
         box.firstMaterial?.diffuse.contents = UIColor.red.withAlphaComponent(0.75)
         box.firstMaterial?.fillMode = .fill
         let boxNode = SCNNode(geometry: box)
         boxNode.castsShadow = true
-//        boxNode.opacity = 0.9
+        boxNode.opacity = self.boxOpacity.floatValue
         self.sceneView.scene.rootNode.addChildNode(boxNode)
         self.boxNode = boxNode
-        self.update(boxNode, with: faceNode)
 
+        // done
+        self.update(boxNode, with: faceNode)
         return faceNode
     }
 
@@ -138,7 +257,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //        boxNode.transform = SCNMatrix4MakeScale(1.0, 1.0, 0)
 
         // position box over face/head
-        boxNode.worldPosition = faceNode.worldPosition
+        // slightly offset to center on head vs face
+        var worldPosition = faceNode.worldPosition
+        worldPosition.y += 0.01
+        worldPosition.z += -0.03
+        boxNode.worldPosition = worldPosition
         boxNode.worldOrientation = faceNode.worldOrientation
 
         // limit orientations for now
