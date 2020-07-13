@@ -36,7 +36,7 @@ All the transforms are in order-of-operation, and some can be encapsulated into 
 Right now the app is limited to "landscape right" to simplify the framebuffer to texture process, but this needs to support all orientations to correctly build the transform utilities.
 
 #### CoreImage Filter Performance
-Once the CIFilter is enabled, the framerate drops by move than 50%. All of the effort is being spent in the SCNRendererDelegate callback and applying the filter to the entire framebuffer is expensive. Initially the thought to use texture transforms instead of cropping the framebuffer was valid, but now I need to investigate if that is still the best way. Perhaps CoreImage moves the pixel data across CPU/GPU boundaries.
+Once the CIFilter is enabled, the framerate drops by move than 50%. All of the effort is being spent in the SCNRendererDelegate callback and applying the filter to the entire framebuffer appears to be expensive, perhaps because CoreImage has to move the pixels across boundaries? Maybe it's possible to use a Metal shader to accomplish the same effect but keep the pixels in the same memory location.
 
 #### Texture Rotation
 When the face geometry rotate the texture as applied to the cube rotates further than expected. This is because the texture is always square aligned with the frame buffer, and should inverse rotate to compensate. This will require some additional calculation for the texture size dependent on the largest diameter when rotated.
