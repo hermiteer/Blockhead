@@ -20,26 +20,32 @@ The project was built from the default ARKit, single-view Xcode project. All of 
 1. Calculate the texture coordinates from the frame buffer coordinates
 1. Apply the frame buffer to the box using the texture coordinates
 
-The pixellation effect is created using CoreImage for simplicity, but has performance implications as discussed in TODOs.
+The pixellation effect is done with CoreImage on the entire frame buffer, but has performance implications to be addressed later.
 
 The top left thumbnail is the entire AR frame buffer, with an overlay indicating the texture coordinates, with the same overlay on the screen. When both of these are aligned, the 2D transforms are working as expected. There are on-screen toggles for those features, plus pixellation and face geometry visibility.
 
+## Try it yourself
+Simply clone the repo and open `Blockhead.xcodeproj`. You will to supply your own Developer Team ID and Bundle ID to build onto a device.
+
 ## TODOs
 
-#### Rear camera support
-Using the front camera makes it easy to see the various debug views the app has, but this should support the rear camera on iPad Pros.
-
-#### Visual polish
-When the face is no longer recognized, the cube could smoothly disappear instead of remaining on screen.
-
-#### Texture rotation
-When the face geometry rotate the texture as applied to the cube rotates further than expected. This is because the texture is always square aligned with the frame buffer, and should inverse rotate to compensate. This will require some additional calculation for the texture size dependent on the largest diameter when rotated.
-
-#### CoreImage Filter Performance
-Once the CIFilter is enabled, the framerate drops by move than 50%. All of the effort is being spent in the SCNRendererDelegate callback and applying the filter to the entire framebuffer is expensive. Initially the thought to use texture transforms instead of cropping the framebuffer was valid, but now I need to investigate if that is still the best way. Perhaps CoreImage moves the pixel data across CPU/GPU boundaries.
+#### Transform Utilities
+All the transforms are in order-of-operation, and some can be encapsulated into their own functions.
 
 #### Device Orientation Support
 Right now the app is limited to "landscape right" to simplify the framebuffer to texture process, but this needs to support all orientations to correctly build the transform utilities.
 
+#### CoreImage Filter Performance
+Once the CIFilter is enabled, the framerate drops by move than 50%. All of the effort is being spent in the SCNRendererDelegate callback and applying the filter to the entire framebuffer is expensive. Initially the thought to use texture transforms instead of cropping the framebuffer was valid, but now I need to investigate if that is still the best way. Perhaps CoreImage moves the pixel data across CPU/GPU boundaries.
+
+#### Texture Rotation
+When the face geometry rotate the texture as applied to the cube rotates further than expected. This is because the texture is always square aligned with the frame buffer, and should inverse rotate to compensate. This will require some additional calculation for the texture size dependent on the largest diameter when rotated.
+
+#### Rear Camera Support
+Using the front camera makes it easy to see the various debug views the app has, but this should support the rear camera on iPad Pros.
+
 #### Cube Model Culling
 The cube is a very simple SCNBox bound to the ARKit detected face geometry. When the head tilts up or down, the cube is not cut out where the neck and top of the head exists. I need to figure out how to add geometry, or modify the cube geometry, to hide those parts of the cube so it appears that cube is really surrounding the head and face. A long time ago I did some experiments in the Unreal Engine and objects had a "negative" mode where geometry intersections would "cut out" other objects, not sure if there is an equivalent in SceneKit.
+
+#### Visual polish
+When the face is no longer recognized, the cube could smoothly disappear instead of remaining on screen.
