@@ -14,7 +14,8 @@ import VideoToolbox
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
-    // TODO rename and explain what each does
+    // MARK: Views
+
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet var screenView: UIView!
     @IBOutlet var imageView: UIImageView!
@@ -27,6 +28,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         view.backgroundColor = .red
         return view
     }()
+
+    private var sceneViewSize = CGSize.zero
+    private var orientation = UIInterfaceOrientation.unknown
+
+    // MARK: Filters
 
     private let context = CIContext()
 
@@ -42,85 +48,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         return filter
     }()
 
-    // TODO filters lower frame rate
-    private lazy var filter: CIFilter? = nil//self.minecraft
+    private lazy var filter: CIFilter? = nil
 
-    // TODO queue safe?
-    private var sceneViewSize = CGSize.zero
-    private var orientation = UIInterfaceOrientation.unknown
+    // MARK: Various controls
 
-    // TODO queue safe?
-    private var faceNode: SCNNode?
-    private var boxNode: SCNNode?
-
-    // TODO needs to be queue safe
-    // configuration
-    // cube opacity
-    enum Opacity: CaseIterable {
-
-        case full
-        case some
-        case none
-
-        // TODO associated value?
-        var floatValue: CGFloat {
-            switch self {
-                case .full: return 1.0
-                case .some: return 0.5
-                default: return 0.0
-            }
-        }
-
-        // TODO can this be made generic?
-        var next: Opacity {
-            let cases = Opacity.allCases
-            if self == cases.last { return cases[0] }
-            if let index = cases.firstIndex(of: self) { return cases[index + 1] }
-            return cases[0]
-        }
-
-        var title: String {
-            switch self {
-                case .full: return "Full"
-                case .some: return "Some"
-                default: return "None"
-            }
-        }
-
-        var boxImage: UIImage? {
-            switch self {
-                case .full: return UIImage(named: "Box-full")
-                case .some: return UIImage(named: "Box-some")
-                default: return UIImage(named: "Box-none")
-            }
-        }
-
-        var faceImage: UIImage? {
-            switch self {
-                case .full: return UIImage(named: "Face-full")
-                case .some: return UIImage(named: "Face-some")
-                default: return UIImage(named: "Face-none")
-            }
-        }
-
-        var screenImage: UIImage? {
-            switch self {
-                case .full: return UIImage(named: "Screen-full")
-                case .some: return UIImage(named: "Screen-some")
-                default: return UIImage(named: "Screen-none")
-            }
-        }
-
-        var pixellateImage: UIImage? {
-            switch self {
-                case .full: return UIImage(named: "Pixellate-full")
-                case .some: return UIImage(named: "Pixellate-some")
-                default: return UIImage(named: "Pixellate-none")
-            }
-        }
-    }
-
-    var boxOpacity: Opacity = .full {
+    var boxOpacity: Amount = .full {
         didSet {
             self.sceneView.session.delegateQueue?.async {
                 guard let node = self.boxNode else { return }
@@ -129,7 +61,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
-    var faceOpacity: Opacity = .none {
+    var faceOpacity: Amount = .none {
         didSet {
             self.sceneView.session.delegateQueue?.async {
                 guard let node = self.faceNode else { return }
@@ -138,14 +70,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
-    var screenOpacity: Opacity = .none {
+    var screenOpacity: Amount = .none {
         didSet {
             self.screenView.alpha = self.screenOpacity.floatValue
         }
     }
 
-    // TODO rename opacity
-    var pixellateAmount: Opacity = .none {
+    var pixellateAmount: Amount = .none {
         didSet {
             self.sceneView.session.delegateQueue?.async {
                 switch self.pixellateAmount {
@@ -179,7 +110,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Set the scene to the view
         sceneView.scene = scene
 
-        // TODO explain this
+        // initial values
         self.imageView.addSubview(self.textureView)
         self.boxOpacity = .full
         self.faceOpacity = .full
@@ -241,7 +172,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     // MARK: ARSCNViewDelegate
 
-    // Add node for discovered face anchor
+    private var faceNode: SCNNode?
+    private var boxNode: SCNNode?
+
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
 
         // face node
@@ -281,9 +214,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     private func update(_ boxNode: SCNNode, with faceNode: SCNNode) {
 
-        // TODO need to x invert texture if flattened
-//        boxNode.transform = SCNMatrix4MakeScale(1.0, 1.0, 0)
-
         // position box over face/head
         // slightly offset to center on head vs face
         var worldPosition = faceNode.worldPosition
@@ -298,7 +228,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let viewportSize = self.sceneViewSize
 
         // capture image from frame
-        // this is always 1440x1080
+        // this is 1440x1080 for iPhone 11 Pro
         // and must be transformed into screen orientation
         guard let frame = self.sceneView.session.currentFrame else { return }
         let buffer = frame.capturedImage
@@ -309,7 +239,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                                viewportSize: bufferSize)
         var ciImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
 
-        // TODO can filter be applied to only a portion of image?
         // this works but kills framerate
         if let filter = self.filter {
             filter.setValue(ciImage, forKey: kCIInputImageKey)
@@ -385,8 +314,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         boxNode.geometry?.firstMaterial?.diffuse.contents = texture
         boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
 
-        // TODO apply rotation transform
-        // update the supposed texture view patch
+        // update the UIKit overlays
         DispatchQueue.main.async {
 
             // update screen view
@@ -408,30 +336,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.textureView.frame = viewFrame
         }
     }
-
-    // TODO this is not getting called
-    // TODO fade out box node
-    func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
-        guard let _ = anchor as? ARFaceAnchor else { return }
-        self.boxNode?.removeFromParentNode()
-        self.boxNode = nil
-    }
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        NSLog("")
-    }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        NSLog("")
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        NSLog("")
-    }
 }
+
+// MARK:-
 
 extension SCNVector3 {
 
@@ -444,5 +351,42 @@ extension SCNVector3 {
         let z1 = vector2.z
 
         return sqrtf(powf(x1-x0, 2) + powf(y1-y0, 2) + powf(z1-z0, 2))
+    }
+}
+
+// MARK:-
+
+fileprivate extension Amount {
+
+    var boxImage: UIImage? {
+        switch self {
+            case .full: return UIImage(named: "Box-full")
+            case .some: return UIImage(named: "Box-some")
+            default: return UIImage(named: "Box-none")
+        }
+    }
+
+    var faceImage: UIImage? {
+        switch self {
+            case .full: return UIImage(named: "Face-full")
+            case .some: return UIImage(named: "Face-some")
+            default: return UIImage(named: "Face-none")
+        }
+    }
+
+    var screenImage: UIImage? {
+        switch self {
+            case .full: return UIImage(named: "Screen-full")
+            case .some: return UIImage(named: "Screen-some")
+            default: return UIImage(named: "Screen-none")
+        }
+    }
+
+    var pixellateImage: UIImage? {
+        switch self {
+            case .full: return UIImage(named: "Pixellate-full")
+            case .some: return UIImage(named: "Pixellate-some")
+            default: return UIImage(named: "Pixellate-none")
+        }
     }
 }
