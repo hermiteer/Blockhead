@@ -7,7 +7,7 @@ One of the fascinating things to me is how ARKit enables a blending of visual re
 
 [![Blockhead](https://yt-embed.herokuapp.com/embed?v=qv_Cb7TkmHQ)](https://www.youtube.com/watch?v=qv_Cb7TkmHQ "Blockhead")
 
-## How does it work
+## The pixel path
 The project was built from the default ARKit, single-view Xcode project. All of the 3D and 2D processing happens in a function from the `ARSCNViewDelegate.renderer(nodeForAnchor:ARAnchor)` delegate method. As the code evolves, things will move into new classes and extensions, but for now everything is here to keep all the transforms in logical order.
 
 1. Create an `SNCBox` node when a face is detected
