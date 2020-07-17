@@ -193,6 +193,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var faceNode: SCNNode?
     private var boxNode: SCNNode?
 
+    // Metal support
+    // note that the MTLDevice is accessible from the sceneView
+    private var metalTextureCache: CVMetalTextureCache?
+    private var metalTexture: MTLTexture?
+
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
 
         // face node
@@ -301,10 +306,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
         // screen to image
         var imageRect = screenRect
-        let height = (viewportSize.width / (CGFloat(cgImage.width) / CGFloat(cgImage.height))) - viewportSize.height
+        let height = (viewportSize.width / (CGFloat(bufferWidth) / CGFloat(bufferHeight))) - viewportSize.height
         let offset = height / 2.0
         imageRect.origin.y += offset
-        let imageToScreenRatio = CGFloat(cgImage.width) / CGFloat(viewportSize.width)
+        let imageToScreenRatio = CGFloat(bufferWidth) / CGFloat(viewportSize.width)
         imageRect.origin.x *= imageToScreenRatio
         imageRect.origin.y *= imageToScreenRatio
         imageRect.size.width *= imageToScreenRatio
@@ -313,10 +318,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // image to texture
         // coordinates from absolute into percentages i.e. 0 to 1
         var textureRect = CGRect.zero
-        textureRect.origin.x = imageRect.origin.x / CGFloat(cgImage.width)
-        textureRect.origin.y = imageRect.origin.y / CGFloat(cgImage.height)
-        textureRect.size.width = imageRect.size.width / CGFloat(cgImage.width)
-        textureRect.size.height = imageRect.size.height / CGFloat(cgImage.height)
+        textureRect.origin.x = imageRect.origin.x / CGFloat(bufferWidth)
+        textureRect.origin.y = imageRect.origin.y / CGFloat(bufferHeight)
+        textureRect.size.width = imageRect.size.width / CGFloat(bufferWidth)
+        textureRect.size.height = imageRect.size.height / CGFloat(bufferHeight)
 
         // texture rect to texture coordinates
         var textureTransform = SCNMatrix4Identity
@@ -327,9 +332,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let textureTranslateY = Float(textureRect.origin.y)
         textureTransform = SCNMatrix4Translate(textureTransform, textureTranslateX, textureTranslateY, 0)
 
+        // HACK HACK HACK
+        if self.metalTextureCache == nil {
+            if let device = self.sceneView.device {
+                let result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
+                                                       nil,
+                                                       device,
+                                                       nil, &self.metalTextureCache)
+            }
+        }
+
+        let metalTextureY = self.metalTexture(from: buffer, format: .r8Unorm, planeIndex: 0)
+        let metalTextureCbCr = self.metalTexture(from: buffer, format: .rg8Unorm, planeIndex: 1)
+
         // apply texture and transform
-        let texture = cgImage
-        boxNode.geometry?.firstMaterial?.diffuse.contents = texture
+//        let texture = self.metalTexture ?? cgImage
+        boxNode.geometry?.firstMaterial?.diffuse.contents = metalTextureCbCr ?? cgImage
         boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
 
         // update the UIKit overlays
@@ -353,6 +371,35 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             viewFrame.size.height *= viewToImageRatio
             self.textureView.frame = viewFrame
         }
+    }
+
+    // From https://developer.apple.com/documentation/arkit/displaying_an_ar_experience_with_metal
+    // Create Metal texture from the pixel buffer in a particular format.
+    private func metalTexture(from pixelBuffer: CVPixelBuffer,
+                              format: MTLPixelFormat,
+                              planeIndex: Int) -> MTLTexture?
+    {
+        guard let cache = self.metalTextureCache else { return nil }
+
+        var metalTexture: MTLTexture? = nil
+        let width = CVPixelBufferGetWidthOfPlane(pixelBuffer, planeIndex)
+        let height = CVPixelBufferGetHeightOfPlane(pixelBuffer, planeIndex)
+
+        var texture: CVMetalTexture? = nil
+        let status = CVMetalTextureCacheCreateTextureFromImage(nil,
+                                                               cache,
+                                                               pixelBuffer,
+                                                               nil,
+                                                               format,
+                                                               width,
+                                                               height,
+                                                               planeIndex,
+                                                               &texture)
+        if status == kCVReturnSuccess {
+            metalTexture = CVMetalTextureGetTexture(texture!)
+        }
+
+        return metalTexture
     }
 }
 
