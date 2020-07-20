@@ -316,11 +316,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // crop image to texture
         var textureImage = bufferImage.cropped(to: textureRect)
 
-        // TODO texture gets larger when the face gets closer
-        // TODO but the pixellate stays the same, needs to adjust
-        // TODO so that the texture is decimated to the same scale
-        // TODO no matter what the Z distance is
         // apply filter if necessary
+        // note that it was tempting to try and use texture magnification
+        // to approximate the pixellation effect, but it proved not as
+        // visibly consistent due to the use of the CoreImage scale filter
+        // the texture will always be changing size so there is no way
+        // to get an exact downscaled texture that won't "swim" as the
+        // face changes proximity to the camera
         if let filter = self.filter {
             filter.setValue(textureImage, forKey: kCIInputImageKey)
             textureImage = filter.outputImage ?? textureImage
@@ -331,9 +333,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // apply texture and transform
         boxNode.geometry?.firstMaterial?.diffuse.contents = self.context.createCGImage(textureImage,
                                                                                        from: textureImage.extent)
-        boxNode.geometry?.firstMaterial?.diffuse.wrapS = .mirror
-        boxNode.geometry?.firstMaterial?.diffuse.wrapT = .mirror
 
+        // TODO this could be moved to a class
         // update the UIKit overlays
         // this shows the frame buffer image
         DispatchQueue.main.async {
