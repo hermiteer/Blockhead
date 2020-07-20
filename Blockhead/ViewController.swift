@@ -18,6 +18,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet var screenView: UIView!
+    @IBOutlet var hudView: UIView!
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var imageViewWidthConstraint: NSLayoutConstraint!
     @IBOutlet var imageViewHeightConstraint: NSLayoutConstraint!
@@ -31,6 +32,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     private var sceneViewSize = CGSize.zero
     private var orientation = UIInterfaceOrientation.unknown
+
+    private var hudViewIsHidden = false {
+        didSet {
+            self.screenView.isHidden = hudViewIsHidden
+            self.hudView.subviews.forEach { $0.isHidden = hudViewIsHidden }
+            self.sceneView.showsStatistics = !hudViewIsHidden
+        }
+    }
 
     // MARK: Filters
 
@@ -115,6 +124,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.boxOpacity = .full
         self.faceOpacity = .full
         self.screenOpacity = .full
+
+        let singleTap = UITapGestureRecognizer(target: self,
+                                               action: #selector(hudViewSingleTap(gesture:)))
+        self.hudView.addGestureRecognizer(singleTap)
     }
 
     override func viewDidLayoutSubviews() {
@@ -128,6 +141,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARFaceTrackingConfiguration()
+        configuration.maximumNumberOfTrackedFaces = 1
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -168,6 +182,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let opacity = self.pixellateAmount.next
         self.pixellateAmount = opacity
         button.setImage(opacity.pixellateImage, for: .normal)
+    }
+
+    @objc func hudViewSingleTap(gesture: UITapGestureRecognizer) {
+        self.hudViewIsHidden = !self.hudViewIsHidden
     }
 
     // MARK: ARSCNViewDelegate
