@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		53A1A33424C25A0C00AF627D /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 53A1A33324C25A0C00AF627D /* Shaders.metal */; };
 		53C4F59224B3ACE700AC2C88 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4F59124B3ACE700AC2C88 /* AppDelegate.swift */; };
 		53C4F59624B3ACE700AC2C88 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4F59524B3ACE700AC2C88 /* ViewController.swift */; };
 		53C4F59924B3ACE700AC2C88 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53C4F59724B3ACE700AC2C88 /* Main.storyboard */; };
@@ -18,8 +17,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		53A1A33324C25A0C00AF627D /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		53A1A36824C25B8B00AF627D /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		53C4F58E24B3ACE700AC2C88 /* Blockhead.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blockhead.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		53C4F59124B3ACE700AC2C88 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		53C4F59524B3ACE700AC2C88 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -70,8 +67,6 @@
 				53C4F59F24B3ACE800AC2C88 /* Info.plist */,
 				53C4F59C24B3ACE800AC2C88 /* LaunchScreen.storyboard */,
 				53C4F59724B3ACE700AC2C88 /* Main.storyboard */,
-				53A1A33324C25A0C00AF627D /* Shaders.metal */,
-				53A1A36824C25B8B00AF627D /* ShaderTypes.h */,
 				53C4F59524B3ACE700AC2C88 /* ViewController.swift */,
 			);
 			path = Blockhead;
@@ -148,7 +143,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53A1A33424C25A0C00AF627D /* Shaders.metal in Sources */,
 				53C4F59624B3ACE700AC2C88 /* ViewController.swift in Sources */,
 				53F159DA24C25116008054ED /* CVPixelBuffer+Blockhead.swift in Sources */,
 				53C4F59224B3ACE700AC2C88 /* AppDelegate.swift in Sources */,
