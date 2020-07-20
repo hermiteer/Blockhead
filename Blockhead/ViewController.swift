@@ -262,15 +262,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                                viewportSize: bufferSize)
         var ciImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
 
-        // this works but kills framerate
-        if let filter = self.filter {
-            filter.setValue(ciImage, forKey: kCIInputImageKey)
-            ciImage = filter.outputImage ?? ciImage
-        }
-
-        // convert CIImage to CGImage
-        guard let cgImage = self.context.createCGImage(ciImage, from: ciImage.extent) else { return }
-
         // face to bounding
         let rootNode = self.sceneView.scene.rootNode
         let (faceCenter, faceRadius) = faceNode.boundingSphere
@@ -323,6 +314,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         textureRect.size.width = imageRect.size.width / CGFloat(bufferWidth)
         textureRect.size.height = imageRect.size.height / CGFloat(bufferHeight)
 
+        // TODO transform utility
         // texture rect to texture coordinates
         var textureTransform = SCNMatrix4Identity
         let textureScaleX = Float(textureRect.size.width)
@@ -345,12 +337,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let metalTextureY = self.metalTexture(from: buffer, format: .r8Unorm, planeIndex: 0)
         let metalTextureCbCr = self.metalTexture(from: buffer, format: .rg8Unorm, planeIndex: 1)
 
+        // TODO does cropping cost more than filtering the entire image?
+        // crop image & apply filter
+        var textureImage = ciImage.cropped(to: imageRect)
+        if let filter = self.filter {
+            filter.setValue(textureImage, forKey: kCIInputImageKey)
+            textureImage = filter.outputImage ?? textureImage
+        }
+
+        // convert CIImage to CGImage
+//        guard let cgImage = self.context.createCGImage(ciImage, from: ciImage.extent) else { return }
+
         // apply texture and transform
 //        let texture = self.metalTexture ?? cgImage
-        boxNode.geometry?.firstMaterial?.diffuse.contents = metalTextureCbCr ?? cgImage
-        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
+        boxNode.geometry?.firstMaterial?.diffuse.contents = self.context.createCGImage(textureImage,
+                                                                                       from: textureImage.extent)
+//        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
 
         // update the UIKit overlays
+        // this shows the frame buffer image
         DispatchQueue.main.async {
 
             // update screen view
@@ -358,12 +363,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.screenView.frame = frame
 
             // update image view
-            self.imageView.image = UIImage(cgImage: cgImage)
-            let ratio = CGFloat(cgImage.height) / CGFloat(cgImage.width)
+            let image = UIImage(ciImage: ciImage)
+            self.imageView.image = image
+            let ratio = image.size.height / image.size.width
             self.imageViewHeightConstraint.constant = ratio * self.imageViewWidthConstraint.constant
 
             // image to view
-            let viewToImageRatio = self.imageView.bounds.size.width / CGFloat(cgImage.width)
+            let viewToImageRatio = self.imageView.bounds.size.width / image.size.width
             var viewFrame = imageRect
             viewFrame.origin.x *= viewToImageRatio
             viewFrame.origin.y *= viewToImageRatio
