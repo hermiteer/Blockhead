@@ -22,7 +22,7 @@ The project was built from the default ARKit, single-view Xcode project. All of 
 
 The bounding box projection uses the center and radius of the face geometry, and projects points on all three axes. When projected to 2D, the largest radius is then used to determine the 2D bounding box. This ensures that the bounding box always surrounds the face geometry regardless of orientation.
 
-The pixellation effect is done with CoreImage on the entire frame buffer, but has performance implications to be addressed later. Without any pixellation, the app runs at 60fps.
+The pixellation effect is done with CoreImage on only the pixels within the bounding box, and runs at 60fps on an iPhone 11 Pro.
 
 The top left thumbnail is the entire AR frame buffer, with an overlay indicating the texture coordinates, with the same overlay on the screen. When both of these are aligned, the 2D transforms are working as expected. There are on-screen toggles for those features, plus pixellation and face geometry visibility.
 
