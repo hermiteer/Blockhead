@@ -314,7 +314,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         textureRect.origin.y = CGFloat(bufferHeight) - textureRect.origin.y - textureRect.size.height
 
         // crop image to texture
-        var textureImage = bufferImage.cropped(to: textureRect)
+        // note that clamping is similar to cropping and requires
+        // using the texture rectangle in buffer coordinates to
+        // correctly create a cropped image later
+        var textureImage = bufferImage.clamped(to: textureRect)
 
         // apply filter if necessary
         // note that it was tempting to try and use texture magnification
@@ -328,13 +331,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             textureImage = filter.outputImage ?? textureImage
         }
 
-        // TODO filter cuts off edge pixels, find a way to repeat?
-        // TODO wrapS and wrapT options don't seem to work
         // apply texture and transform
-        boxNode.geometry?.firstMaterial?.diffuse.contents = self.context.createCGImage(textureImage,
-                                                                                       from: textureImage.extent)
+        // note that the texture is clamped to the larger buffer
+        // so the extent is the textureRect i.e. buffer coordinate space
+        let contents = self.context.createCGImage(textureImage, from: textureRect)
+        boxNode.geometry?.firstMaterial?.diffuse.contents = contents
 
-        // TODO this could be moved to a class
         // update the UIKit overlays
         // this shows the frame buffer image
         DispatchQueue.main.async {
