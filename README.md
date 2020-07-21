@@ -17,7 +17,8 @@ The project was built from the default ARKit, single-view Xcode project. All of 
 1. Create a red rectangle with the screen coordinates
 1. Project the screen rectangle to the frame buffer coordinates
 1. Calculate the texture coordinates from the frame buffer coordinates
-1. Apply the frame buffer to the box using the texture coordinates
+1. Filter the clamped texture
+1. Apply the clamped texture to the box node
 
 The bounding box projection uses the center and radius of the face geometry, and projects points on all three axes. When projected to 2D, the largest radius is then used to determine the 2D bounding box. This ensures that the bounding box always surrounds the face geometry regardless of orientation.
 
@@ -35,9 +36,6 @@ All the transforms are in order-of-operation, and some can be encapsulated into 
 
 #### Device Orientation Support
 Right now the app is limited to "landscape right" to simplify the framebuffer to texture process, but this needs to support all orientations to correctly build the transform utilities.
-
-#### CoreImage Filter Performance
-Once the CIFilter is enabled, the framerate drops by move than 50%. All of the effort is being spent in the SCNRendererDelegate callback and applying the filter to the entire framebuffer appears to be expensive, perhaps because CoreImage has to move the pixels across boundaries? Maybe it's possible to use a Metal shader to accomplish the same effect but keep the pixels in the same memory location.
 
 #### Texture Rotation
 When the face geometry rotate the texture as applied to the cube rotates further than expected. This is because the texture is always square aligned with the frame buffer, and should inverse rotate to compensate. This will require some additional calculation for the texture size dependent on the largest diameter when rotated.

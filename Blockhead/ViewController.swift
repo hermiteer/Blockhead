@@ -122,8 +122,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // initial values
         self.imageView.addSubview(self.textureView)
         self.boxOpacity = .full
-        self.faceOpacity = .full
-        self.screenOpacity = .full
+        self.faceOpacity = .none
+        self.screenOpacity = .none
 
         let singleTap = UITapGestureRecognizer(target: self,
                                                action: #selector(hudViewSingleTap(gesture:)))
@@ -220,8 +220,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
 
-        // update face geometry
+        // update face geometry if tracked
         guard let faceAnchor = anchor as? ARFaceAnchor else { return }
+        guard faceAnchor.isTracked else { return }
         guard let faceGeometry = node.geometry as? ARSCNFaceGeometry else { return }
         faceGeometry.update(from: faceAnchor.geometry)
 
@@ -243,7 +244,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // limit orientations for now
         guard self.orientation == .landscapeRight else { return }
         let orientation = self.orientation
-        let viewportSize = self.sceneViewSize
+        let screenSize = self.sceneViewSize
 
         // capture image from frame
         // this is 1440x1080 for iPhone 11 Pro
@@ -255,16 +256,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let bufferSize = CGSize(width: bufferWidth, height: bufferHeight)
         let transform = frame.displayTransform(for: orientation,
                                                viewportSize: bufferSize)
-        var ciImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
-
-        // this works but kills framerate
-        if let filter = self.filter {
-            filter.setValue(ciImage, forKey: kCIInputImageKey)
-            ciImage = filter.outputImage ?? ciImage
-        }
-
-        // convert CIImage to CGImage
-        guard let cgImage = self.context.createCGImage(ciImage, from: ciImage.extent) else { return }
+        let bufferImage = CIImage(cvPixelBuffer: buffer).transformed(by: transform)
 
         // face to bounding
         let rootNode = self.sceneView.scene.rootNode
@@ -299,53 +291,72 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                 width: CGFloat(radius * 2),
                                 height: CGFloat(radius * 2))
 
+        // TODO transform utility
         // screen to image
+        // the scene view only shows a vertically centered slice
+        // of the entire camera image, so transform the screen
+        // rect to be in the image coordinate space
         var imageRect = screenRect
-        let height = (viewportSize.width / (CGFloat(cgImage.width) / CGFloat(cgImage.height))) - viewportSize.height
+        let height = (screenSize.width / (CGFloat(bufferWidth) / CGFloat(bufferHeight))) - screenSize.height
         let offset = height / 2.0
         imageRect.origin.y += offset
-        let imageToScreenRatio = CGFloat(cgImage.width) / CGFloat(viewportSize.width)
+        let imageToScreenRatio = CGFloat(bufferWidth) / CGFloat(screenSize.width)
         imageRect.origin.x *= imageToScreenRatio
         imageRect.origin.y *= imageToScreenRatio
         imageRect.size.width *= imageToScreenRatio
         imageRect.size.height *= imageToScreenRatio
 
         // image to texture
-        // coordinates from absolute into percentages i.e. 0 to 1
-        var textureRect = CGRect.zero
-        textureRect.origin.x = imageRect.origin.x / CGFloat(cgImage.width)
-        textureRect.origin.y = imageRect.origin.y / CGFloat(cgImage.height)
-        textureRect.size.width = imageRect.size.width / CGFloat(cgImage.width)
-        textureRect.size.height = imageRect.size.height / CGFloat(cgImage.height)
+        // image coordinates are top left but texture coordinates are bottom left
+        // so flip the rect origin from top left to bottom left, it's important
+        // to only use the textureRect values instead of recalculating from above
+        var textureRect = imageRect
+        textureRect.origin.y = CGFloat(bufferHeight) - textureRect.origin.y - textureRect.size.height
 
-        // texture rect to texture coordinates
-        var textureTransform = SCNMatrix4Identity
-        let textureScaleX = Float(textureRect.size.width)
-        let textureScaleY = Float(textureRect.size.height)
-        textureTransform = SCNMatrix4Scale(textureTransform, textureScaleX, textureScaleY, 1.0)
-        let textureTranslateX = Float(textureRect.origin.x)
-        let textureTranslateY = Float(textureRect.origin.y)
-        textureTransform = SCNMatrix4Translate(textureTransform, textureTranslateX, textureTranslateY, 0)
+        // crop image to texture
+        // note that clamping is similar to cropping and requires
+        // using the texture rectangle in buffer coordinates to
+        // correctly create a cropped image later
+        var textureImage = bufferImage.clamped(to: textureRect)
+
+        // apply filter if necessary
+        // note that it was tempting to try and use texture magnification
+        // to approximate the pixellation effect, but it proved not as
+        // visibly consistent due to the use of the CoreImage scale filter
+        // the texture will always be changing size so there is no way
+        // to get an exact downscaled texture that won't "swim" as the
+        // face changes proximity to the camera
+        if let filter = self.filter {
+            filter.setValue(textureImage, forKey: kCIInputImageKey)
+            textureImage = filter.outputImage ?? textureImage
+        }
 
         // apply texture and transform
-        let texture = cgImage
-        boxNode.geometry?.firstMaterial?.diffuse.contents = texture
-        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
+        // note that the texture is clamped to the larger buffer
+        // so the extent is the textureRect i.e. buffer coordinate space
+        let contents = self.context.createCGImage(textureImage, from: textureRect)
+        boxNode.geometry?.firstMaterial?.diffuse.contents = contents
 
         // update the UIKit overlays
+        // this shows the frame buffer image
         DispatchQueue.main.async {
 
             // update screen view
+            // this is the red square indicating where the texture
+            // is being read from on the screen display
             let frame = self.view.convert(screenRect, from: self.sceneView)
             self.screenView.frame = frame
 
-            // update image view
-            self.imageView.image = UIImage(cgImage: cgImage)
-            let ratio = CGFloat(cgImage.height) / CGFloat(cgImage.width)
+            // buffer image to image view
+            let image = UIImage(ciImage: bufferImage)
+            self.imageView.image = image
+            let ratio = image.size.height / image.size.width
             self.imageViewHeightConstraint.constant = ratio * self.imageViewWidthConstraint.constant
 
             // image to view
-            let viewToImageRatio = self.imageView.bounds.size.width / CGFloat(cgImage.width)
+            // this is the red square indicating where the texture
+            // is being read from on the buffer image
+            let viewToImageRatio = self.imageView.bounds.size.width / image.size.width
             var viewFrame = imageRect
             viewFrame.origin.x *= viewToImageRatio
             viewFrame.origin.y *= viewToImageRatio
@@ -354,6 +365,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.textureView.frame = viewFrame
         }
     }
+
+    // MARK: Unused code
+
+    // image to texture
+    // coordinates from absolute into percentages i.e. 0 to 1
+//    var textureRect = CGRect.zero
+//    textureRect.origin.x = imageRect.origin.x / CGFloat(bufferWidth)
+//    textureRect.origin.y = imageRect.origin.y / CGFloat(bufferHeight)
+//    textureRect.size.width = imageRect.size.width / CGFloat(bufferWidth)
+//    textureRect.size.height = imageRect.size.height / CGFloat(bufferHeight)
+
+    // TODO transform utility
+    // texture rect to texture coordinates
+//    var textureTransform = SCNMatrix4Identity
+//    let textureScaleX = Float(textureRect.size.width)
+//    let textureScaleY = Float(textureRect.size.height)
+//    textureTransform = SCNMatrix4Scale(textureTransform, textureScaleX, textureScaleY, 1.0)
+//    let textureTranslateX = Float(textureRect.origin.x)
+//    let textureTranslateY = Float(textureRect.origin.y)
+//    textureTransform = SCNMatrix4Translate(textureTransform, textureTranslateX, textureTranslateY, 0)
+
+//        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
 }
 
 // MARK:-
