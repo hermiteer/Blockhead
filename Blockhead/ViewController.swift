@@ -115,6 +115,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a new scene
         let scene = SCNScene()
+
+        // TODO allow different gravities
+        scene.physicsWorld.gravity = SCNVector3(0, 0, 0)
         
         // Set the scene to the view
         sceneView.scene = scene
@@ -125,6 +128,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.faceOpacity = .none
         self.screenOpacity = .none
 
+        // getsures
         let singleTap = UITapGestureRecognizer(target: self,
                                                action: #selector(hudViewSingleTap(gesture:)))
         self.hudView.addGestureRecognizer(singleTap)
@@ -193,6 +197,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var faceNode: SCNNode?
     private var boxNode: SCNNode?
 
+    private var boxNodePosition = SCNVector3Zero
+    private var boxNodeRotation = SCNVector4Zero
+
+    private var boxNodeForce: [SCNVector3] = []
+    private var boxNodeTorque: [SCNVector4] = []
+
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
 
         // face node
@@ -218,6 +228,26 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         return faceNode
     }
 
+    func renderer(_ renderer: SCNSceneRenderer, willUpdate node: SCNNode, for anchor: ARAnchor) {
+
+        // ensure face anchor and box node
+        guard let faceAnchor = anchor as? ARFaceAnchor else { return }
+        guard faceAnchor.isTracked == false else { return }
+        guard let node = self.boxNode else { return }
+
+        // create physics
+        guard node.physicsBody == nil else { return }
+        let body = SCNPhysicsBody.dynamic()
+        body.angularDamping = 0.5
+        body.damping = 0.5
+        body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
+        node.physicsBody = body
+
+        // apply impluses
+        body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
+        body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+    }
+
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
 
         // update face geometry if tracked
@@ -227,11 +257,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         faceGeometry.update(from: faceAnchor.geometry)
 
         // update box node
+        // stop any physics
         guard let boxNode = self.boxNode else { return }
+        boxNode.physicsBody?.clearAllForces()
+        boxNode.physicsBody = nil
         self.update(boxNode, with: node)
     }
 
     private func update(_ boxNode: SCNNode, with faceNode: SCNNode) {
+
+        // increment force
+        self.boxNodeForce.add(boxNode.position - self.boxNodePosition)
+        self.boxNodePosition = boxNode.position
+
+        // increment torque
+        self.boxNodeTorque.add(boxNode.rotation - self.boxNodeRotation)
+        self.boxNodeRotation = boxNode.rotation
 
         // position box over face/head
         // slightly offset to center on head vs face
