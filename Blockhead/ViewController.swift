@@ -97,21 +97,35 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    var lights: Amount = .some {
+        didSet {
+            self.sceneView.session.delegateQueue?.async {
+                switch self.lights {
+                    case .full: self.lightNode?.isHidden = false
+                    case .some: self.lightNode?.isHidden = false
+                    case .none: self.lightNode?.isHidden = true
+                }
+            }
+        }
+    }
+
     // MARK: Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set the view's delegate
+        // configure scene view
         sceneView.delegate = self
+        sceneView.autoenablesDefaultLighting = false
+        sceneView.automaticallyUpdatesLighting = false
+        sceneView.showsStatistics = true
+
+        // configure scene view session
         sceneView.session.delegateQueue = DispatchQueue(label: "delegate",
                                                         qos: .userInteractive,
                                                         attributes: .concurrent,
                                                         autoreleaseFrequency: .workItem,
                                                         target: nil)
-        
-        // Show statistics such as fps and timing information
-        sceneView.showsStatistics = true
         
         // Create a new scene
         let scene = SCNScene()
@@ -146,6 +160,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARFaceTrackingConfiguration()
         configuration.maximumNumberOfTrackedFaces = 1
+        configuration.isLightEstimationEnabled = true
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -153,8 +168,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        // Pause the view's session
         sceneView.session.pause()
     }
 
@@ -188,6 +201,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         button.setImage(opacity.pixellateImage, for: .normal)
     }
 
+    @IBAction
+    func lightsButtonTouchUpInside(button: UIButton) {
+        let amount = self.lights.next
+        self.lights = amount
+        button.setImage(amount.lightsImage, for: .normal)
+    }
+
     @objc func hudViewSingleTap(gesture: UITapGestureRecognizer) {
         self.hudViewIsHidden = !self.hudViewIsHidden
     }
@@ -196,6 +216,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     private var faceNode: SCNNode?
     private var boxNode: SCNNode?
+    private var lightNode: SCNNode?
 
     private var boxNodePosition = SCNVector3Zero
     private var boxNodeRotation = SCNVector4Zero
@@ -222,6 +243,26 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         boxNode.opacity = self.boxOpacity.floatValue
         self.sceneView.scene.rootNode.addChildNode(boxNode)
         self.boxNode = boxNode
+
+        // light node
+        let light = SCNLight()
+        light.castsShadow = true
+        light.shadowColor = UIColor.black.withAlphaComponent(0.2)
+        light.shadowMode = .deferred
+        light.type = .directional
+        let lightNode = SCNNode()
+        lightNode.light = light
+        self.sceneView.pointOfView?.addChildNode(lightNode)
+        self.lightNode = lightNode
+
+        // wall node
+        let plane = SCNPlane(width: 10.0, height: 10.0)
+        plane.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
+        let planeNode = SCNNode(geometry: plane)
+        planeNode.castsShadow = true
+        planeNode.position = SCNVector3(0, 0, -1.75)
+        planeNode.physicsBody = SCNPhysicsBody.static()
+        self.sceneView.pointOfView?.addChildNode(planeNode)
 
         // done
         self.update(boxNode, with: faceNode)
@@ -406,8 +447,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.textureView.frame = viewFrame
         }
     }
+}
 
-    // MARK: Unused code
+// MARK:- Unused code
 
     // image to texture
     // coordinates from absolute into percentages i.e. 0 to 1
@@ -428,7 +470,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //    textureTransform = SCNMatrix4Translate(textureTransform, textureTranslateX, textureTranslateY, 0)
 
 //        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
-}
 
 // MARK:-
 
@@ -479,6 +520,14 @@ fileprivate extension Amount {
             case .full: return UIImage(named: "Pixellate-full")
             case .some: return UIImage(named: "Pixellate-some")
             default: return UIImage(named: "Pixellate-none")
+        }
+    }
+
+    var lightsImage: UIImage? {
+        switch self {
+            case .full: return UIImage(named: "Lights-full")
+            case .some: return UIImage(named: "Lights-some")
+            default: return UIImage(named: "Lights-none")
         }
     }
 }
