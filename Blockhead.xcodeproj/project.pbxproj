@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		530DEF3C24CB582D00900AE3 /* Scenes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530DEF3B24CB582D00900AE3 /* Scenes.swift */; };
 		53C4F59224B3ACE700AC2C88 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4F59124B3ACE700AC2C88 /* AppDelegate.swift */; };
 		53C4F59624B3ACE700AC2C88 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4F59524B3ACE700AC2C88 /* ViewController.swift */; };
 		53C4F59924B3ACE700AC2C88 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53C4F59724B3ACE700AC2C88 /* Main.storyboard */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		530DEF3B24CB582D00900AE3 /* Scenes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scenes.swift; sourceTree = "<group>"; };
 		53C4F58E24B3ACE700AC2C88 /* Blockhead.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blockhead.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		53C4F59124B3ACE700AC2C88 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		53C4F59524B3ACE700AC2C88 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				53C4F59524B3ACE700AC2C88 /* ViewController.swift */,
 				53DA8A0A24C8ABAF0022243E /* SCNVector3+Blockhead.swift */,
 				53DA8A0C24C8B33F0022243E /* SCNVector4+Blockhead.swift */,
+				530DEF3B24CB582D00900AE3 /* Scenes.swift */,
 			);
 			path = Blockhead;
 			sourceTree = "<group>";
@@ -149,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				530DEF3C24CB582D00900AE3 /* Scenes.swift in Sources */,
 				53DA8A0B24C8ABAF0022243E /* SCNVector3+Blockhead.swift in Sources */,
 				53C4F59624B3ACE700AC2C88 /* ViewController.swift in Sources */,
 				53DA8A0D24C8B33F0022243E /* SCNVector4+Blockhead.swift in Sources */,

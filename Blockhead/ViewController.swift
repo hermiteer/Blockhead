@@ -44,19 +44,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // MARK: Filters
 
     private let context = CIContext()
-
-    private let blocky: CIFilter? = {
-        let filter = CIFilter(name: "CIPixellate")
-        filter?.setValue(32.0, forKey: kCIInputScaleKey)
-        return filter
-    }()
-
-    private let chunky: CIFilter? = {
-        let filter = CIFilter(name: "CIPixellate")
-        filter?.setValue(16.0, forKey: kCIInputScaleKey)
-        return filter
-    }()
-
+    private let pixellateFilter = CIFilter(name: "CIPixellate")!
     private lazy var filter: CIFilter? = nil
 
     // MARK: Various controls
@@ -88,11 +76,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var pixellateAmount: Amount = .none {
         didSet {
             self.sceneView.session.delegateQueue?.async {
+                var value = 0.0
                 switch self.pixellateAmount {
-                    case .full: self.filter = self.blocky
-                    case .some: self.filter = self.chunky
-                    case .none: self.filter = nil
+                    case .full: value = 32.0; break
+                    case .some: value = 16.0; break
+                    default: value = 0
                 }
+                self.pixellateFilter.setValue(value, forKey: kCIInputScaleKey)
+                self.filter = self.pixellateAmount == .none ? nil : self.pixellateFilter
             }
         }
     }
@@ -142,10 +133,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.faceOpacity = .none
         self.screenOpacity = .none
 
-        // getsures
+        // gestures
         let singleTap = UITapGestureRecognizer(target: self,
                                                action: #selector(hudViewSingleTap(gesture:)))
         self.hudView.addGestureRecognizer(singleTap)
+
+        // scenes
+        Scenes.shared.isSwitchingScenes = true
+        Scenes.shared.controller = self
     }
 
     override func viewDidLayoutSubviews() {
