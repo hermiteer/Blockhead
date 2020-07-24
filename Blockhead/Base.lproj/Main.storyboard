@@ -82,13 +82,29 @@
                                             <action selector="screenButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="JZf-7x-E8b"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O55-eF-ESD">
+                                        <rect key="frame" x="20" y="260" width="44" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="3CV-vb-gF8"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="m0t-66-N8P"/>
+                                            <constraint firstAttribute="height" constant="44" id="oHP-vO-iPs"/>
+                                            <constraint firstAttribute="width" constant="44" id="ygq-so-LQN"/>
+                                        </constraints>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" image="Lights-full"/>
+                                        <connections>
+                                            <action selector="lightsButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Vng-pt-V6C"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstItem="O55-eF-ESD" firstAttribute="top" secondItem="1WM-sU-qfb" secondAttribute="bottom" constant="8" id="2Yl-Y7-RER"/>
                                     <constraint firstItem="1WM-sU-qfb" firstAttribute="top" secondItem="Fvk-oM-jxp" secondAttribute="bottom" constant="8" id="447-Gr-Sjp"/>
                                     <constraint firstItem="Fvk-oM-jxp" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="8" id="GBK-5E-nJU"/>
                                     <constraint firstItem="JU5-DV-shj" firstAttribute="leading" secondItem="1WM-sU-qfb" secondAttribute="trailing" constant="8" id="Qor-p7-oht"/>
                                     <constraint firstItem="Fvk-oM-jxp" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="Rau-wF-ka9"/>
                                     <constraint firstItem="7ar-hS-DTi" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="8" id="TcI-qf-a2x"/>
+                                    <constraint firstItem="O55-eF-ESD" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="a6J-8S-qZ2"/>
                                     <constraint firstItem="ZeP-ld-GFO" firstAttribute="top" secondItem="peO-pV-AHJ" secondAttribute="top" constant="20" id="es1-oQ-oTp"/>
                                     <constraint firstItem="7ar-hS-DTi" firstAttribute="leading" secondItem="Fvk-oM-jxp" secondAttribute="trailing" constant="8" id="f03-Pz-Gq4"/>
                                     <constraint firstItem="ZeP-ld-GFO" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="rz7-2D-kNx"/>
@@ -127,6 +143,7 @@
     <resources>
         <image name="Box-full" width="44" height="44"/>
         <image name="Face-full" width="44" height="44"/>
+        <image name="Lights-full" width="44" height="44"/>
         <image name="Pixellate-full" width="44" height="44"/>
         <image name="Screen-full" width="44" height="44"/>
     </resources>
