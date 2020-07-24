@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class Scenes: NSObject {
 
@@ -23,9 +24,9 @@ class Scenes: NSObject {
     var isSwitchingScenes = false {
         didSet {
             if isSwitchingScenes {
-                Timer.scheduledTimer(withTimeInterval: 15, repeats: true) {
+                Timer.scheduledTimer(withTimeInterval: 99, repeats: true) {
                     timer in
-                    // TODO invalidate timer
+                    // TODO invalidate timer when turned off?
                     guard self.isSwitchingScenes else { return }
                     self.switchScenes()
                 }
@@ -35,9 +36,17 @@ class Scenes: NSObject {
 
     // MARK: Scenes
 
-    private let scenes = [#selector(blockyFace),
-                          #selector(chunkyFace),
-                          #selector(clearFace)]
+    private var scenes = [
+        #selector(blockyFace),
+//        #selector(chunkyFace),
+//        #selector(clearFace),
+        #selector(threeDegrees),
+//        #selector(ripe),
+        #selector(rumblemunk),
+//        #selector(rumblemunkChunky),
+        #selector(sanrio),
+//        #selector(sanrioChunky)
+    ]
 
     private var sceneIndexes: [Int] = []
 
@@ -76,6 +85,48 @@ class Scenes: NSObject {
     private func clearFace() {
         guard let controller = self.controller else { return }
         controller.pixellateAmount = .none
+    }
+
+    @objc
+    private func rumblemunk() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .none
+        controller.textureImage = UIImage(named: "Rumblemunk")?.cgImage
+    }
+
+    @objc
+    private func rumblemunkChunky() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .some
+        controller.textureImage = UIImage(named: "Rumblemunk")?.cgImage
+    }
+
+    @objc
+    private func ripe() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .none
+        controller.textureImage = UIImage(named: "RIPE")?.cgImage
+    }
+
+    @objc
+    private func sanrio() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .none
+        controller.textureImage = UIImage(named: "Sanrio")?.cgImage
+    }
+
+    @objc
+    private func sanrioChunky() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .some
+        controller.textureImage = UIImage(named: "Sanrio")?.cgImage
+    }
+
+    @objc
+    private func threeDegrees() {
+        guard let controller = self.controller else { return }
+        controller.pixellateAmount = .none
+        controller.textureImage = UIImage(named: "3degrees")?.cgImage
     }
 }
 

@@ -100,6 +100,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    // TODO size should be zero if nil
+    var textureImage: CGImage? {
+        didSet {
+            guard let image = textureImage else { return }
+            self.sceneView.session.delegateQueue?.async {
+                self.textureCIImage = CIImage(cgImage: image)
+                self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
+            }
+        }
+    }
+
+    private var textureCIImage: CIImage?
+    private var textureCIRect = CGRect.zero
+
     // MARK: Lifecycle
 
     override func viewDidLoad() {
@@ -395,6 +409,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // using the texture rectangle in buffer coordinates to
         // correctly create a cropped image later
         var textureImage = bufferImage.clamped(to: textureRect)
+
+        // change the texture if one was specified
+        if let image = self.textureCIImage {
+            textureImage = image
+            textureRect = self.textureCIRect
+        }
 
         // apply filter if necessary
         // note that it was tempting to try and use texture magnification
