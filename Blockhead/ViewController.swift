@@ -269,7 +269,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         plane.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
         let planeNode = SCNNode(geometry: plane)
         planeNode.castsShadow = true
-        planeNode.position = SCNVector3(0, 0, -1.75)
+        planeNode.position = SCNVector3(0, 0, -2.0)
         planeNode.physicsBody = SCNPhysicsBody.static()
         self.sceneView.pointOfView?.addChildNode(planeNode)
 
@@ -433,6 +433,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // so the extent is the textureRect i.e. buffer coordinate space
         let contents = self.context.createCGImage(textureImage, from: textureRect)
         boxNode.geometry?.firstMaterial?.diffuse.contents = contents
+        boxNode.geometry?.firstMaterial?.transparencyMode = .aOne
 
         // update the UIKit overlays
         // this shows the frame buffer image
