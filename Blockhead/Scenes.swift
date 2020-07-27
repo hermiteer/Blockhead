@@ -34,25 +34,29 @@ class Scenes: NSObject {
         }
     }
 
-    // MARK: Scenes
+    // MARK: Scene switching
 
-    private var scenes = [
+    private lazy var scenes: [(NSObject, Selector)] = [
+
+//    private var scenes = [
 //        #selector(none),
 //        #selector(blockyFace),
 //        #selector(chunkyFace),
-        #selector(clearFace),
+        (self, #selector(clearFace)),
 //        #selector(ripe),
-        #selector(rumblemunkFull),
+//        #selector(rumblemunkFull),
 //        #selector(rumblemunkSome),
-        #selector(sanrioFull),
+//        #selector(sanrioFull),
 //        #selector(sanrioSome),
-        #selector(threeDegreesFull),
-        #selector(threeDegreesSome),
+//        #selector(threeDegreesFull),
+//        #selector(threeDegreesSome),
     ]
 
     private var sceneIndexes: [Int] = []
 
     func nextSceneIndex() -> Int {
+
+        // TODO what happens if 0 or one index?
 
         // reset indexes if needed
         // keep last one added so next is always different
@@ -72,11 +76,14 @@ class Scenes: NSObject {
         return index
     }
 
-    private func switchScenes() {
+    func switchScenes() {
+        guard self.scenes.count > 1 else { return }
         let index = self.nextSceneIndex()
-        let scene = self.scenes[index]
-        self.perform(scene)
+        let (object, selector) = self.scenes[index]
+        object.perform(selector)
     }
+
+    // MARK: Default scenes
 
     @objc
     private func none() {

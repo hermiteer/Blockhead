@@ -47,8 +47,55 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private let pixellateFilter = CIFilter(name: "CIPixellate")!
     private lazy var filter: CIFilter? = nil
 
-    // MARK: Various controls
+    // MARK: Scene (not SKScene)
 
+    var scene = Scene() {
+        didSet {
+            self.applyCurrentScene()
+        }
+    }
+
+    private func applyCurrentScene() {
+
+        // apply main thread scene changes
+        self.screenView.alpha = self.scene.screenOpacity.floatValue
+        self.screenView.isHidden = self.scene.hudViewIsHidden
+        self.hudView.subviews.forEach { $0.isHidden = self.scene.hudViewIsHidden }
+        self.sceneView.showsStatistics = !self.scene.hudViewIsHidden
+
+        // apply session queue changes
+        self.sceneView.session.delegateQueue?.async {
+
+            // node opacity
+            self.boxNode?.opacity = self.scene.boxOpacity.floatValue
+            self.faceNode?.opacity = self.scene.faceOpacity.floatValue
+
+            // pixellate amount
+            var value = 0.0
+            switch self.scene.pixellateAmount {
+                case .full: value = 32.0; break
+                case .some: value = 16.0; break
+                default: value = 0
+            }
+            self.pixellateFilter.setValue(value, forKey: kCIInputScaleKey)
+            self.filter = self.scene.pixellateAmount == .none ? nil : self.pixellateFilter
+
+            // light amount
+            switch self.scene.lights {
+                case .full: self.lightNode?.isHidden = false
+                case .some: self.lightNode?.isHidden = false
+                case .none: self.lightNode?.isHidden = true
+            }
+
+            // texture image
+            if let image = self.scene.textureImage {
+                self.textureCIImage = CIImage(cgImage: image)
+                self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
+            }
+        }
+    }
+
+    @available(*, deprecated)
     var boxOpacity: Amount = .full {
         didSet {
             self.sceneView.session.delegateQueue?.async {
@@ -58,6 +105,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    @available(*, deprecated)
     var faceOpacity: Amount = .none {
         didSet {
             self.sceneView.session.delegateQueue?.async {
@@ -67,12 +115,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    @available(*, deprecated)
     var screenOpacity: Amount = .none {
         didSet {
             self.screenView.alpha = self.screenOpacity.floatValue
         }
     }
 
+    @available(*, deprecated)
     var pixellateAmount: Amount = .none {
         didSet {
             self.sceneView.session.delegateQueue?.async {
@@ -88,6 +138,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    @available(*, deprecated)
     var lights: Amount = .some {
         didSet {
             self.sceneView.session.delegateQueue?.async {
@@ -101,6 +152,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
 
     // TODO size should be zero if nil
+    @available(*, deprecated)
     var textureImage: CGImage? {
         didSet {
             guard let image = textureImage else { return }
@@ -111,6 +163,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
 
+    // CoreImage texture and the extent rectangle
+    // note that these are use for both buffer texture
+    // and the user specified CGImage textureImage
     private var textureCIImage: CIImage?
     private var textureCIRect = CGRect.zero
 
@@ -134,8 +189,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a new scene
         let scene = SCNScene()
-
-        // TODO allow different gravities
         scene.physicsWorld.gravity = SCNVector3(0, 0, 0)
         
         // Set the scene to the view
@@ -143,9 +196,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
         // initial values
         self.imageView.addSubview(self.textureView)
-        self.boxOpacity = .full
-        self.faceOpacity = .none
-        self.screenOpacity = .none
 
         // gestures
         let singleTap = UITapGestureRecognizer(target: self,
@@ -155,6 +205,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // scenes
         Scenes.shared.isSwitchingScenes = true
         Scenes.shared.controller = self
+        self.applyCurrentScene()
     }
 
     override func viewDidLayoutSubviews() {
@@ -184,41 +235,47 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBAction
     func boxButtonTouchUpInside(button: UIButton) {
-        let opacity = self.boxOpacity.next
-        self.boxOpacity = opacity
+        let opacity = self.scene.boxOpacity.next
+        self.scene.boxOpacity = opacity
         button.setImage(opacity.boxImage, for: .normal)
+        self.applyCurrentScene()
     }
 
     @IBAction
     func faceButtonTouchUpInside(button: UIButton) {
-        let opacity = self.faceOpacity.next
-        self.faceOpacity = opacity
+        let opacity = self.scene.faceOpacity.next
+        self.scene.faceOpacity = opacity
         button.setImage(opacity.faceImage, for: .normal)
+        self.applyCurrentScene()
     }
 
     @IBAction
     func screenButtonTouchUpInside(button: UIButton) {
-        let opacity = self.screenOpacity.next
-        self.screenOpacity = opacity
+        let opacity = self.scene.screenOpacity.next
+        self.scene.screenOpacity = opacity
         button.setImage(opacity.screenImage, for: .normal)
+        self.applyCurrentScene()
     }
 
     @IBAction
     func pixellateButtonTouchUpInside(button: UIButton) {
-        let opacity = self.pixellateAmount.next
-        self.pixellateAmount = opacity
+        let opacity = self.scene.pixellateAmount.next
+        self.scene.pixellateAmount = opacity
         button.setImage(opacity.pixellateImage, for: .normal)
+        self.applyCurrentScene()
     }
 
     @IBAction
     func lightsButtonTouchUpInside(button: UIButton) {
-        let amount = self.lights.next
-        self.lights = amount
+        let amount = self.scene.lights.next
+        self.scene.lights = amount
         button.setImage(amount.lightsImage, for: .normal)
+        self.applyCurrentScene()
     }
 
     @objc func hudViewSingleTap(gesture: UITapGestureRecognizer) {
-        self.hudViewIsHidden = !self.hudViewIsHidden
+        self.scene.hudViewIsHidden = !self.scene.hudViewIsHidden
+        self.applyCurrentScene()
     }
 
     // MARK: ARSCNViewDelegate
@@ -240,7 +297,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let device = self.sceneView.device else { return nil }
         let faceGeometry = ARSCNFaceGeometry(device: device)
         let faceNode = SCNNode(geometry: faceGeometry)
-        faceNode.opacity = self.faceOpacity.floatValue
+        faceNode.opacity = self.scene.faceOpacity.floatValue
         self.faceNode = faceNode
 
         // box node
@@ -249,7 +306,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         box.firstMaterial?.fillMode = .fill
         let boxNode = SCNNode(geometry: box)
         boxNode.castsShadow = true
-        boxNode.opacity = self.boxOpacity.floatValue
+        boxNode.opacity = self.scene.boxOpacity.floatValue
         self.sceneView.scene.rootNode.addChildNode(boxNode)
         self.boxNode = boxNode
 
