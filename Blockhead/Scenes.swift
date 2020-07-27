@@ -36,27 +36,16 @@ class Scenes: NSObject {
 
     // MARK: Scene switching
 
-    private lazy var scenes: [(NSObject, Selector)] = [
-
-//    private var scenes = [
-//        #selector(none),
-//        #selector(blockyFace),
-//        #selector(chunkyFace),
-        (self, #selector(clearFace)),
-//        #selector(ripe),
-//        #selector(rumblemunkFull),
-//        #selector(rumblemunkSome),
-//        #selector(sanrioFull),
-//        #selector(sanrioSome),
-//        #selector(threeDegreesFull),
-//        #selector(threeDegreesSome),
+    internal lazy var scenes = [
+        none(),
+        blockyFace(),
+        chunkyFace(),
+        face(),
     ]
 
     private var sceneIndexes: [Int] = []
 
     func nextSceneIndex() -> Int {
-
-        // TODO what happens if 0 or one index?
 
         // reset indexes if needed
         // keep last one added so next is always different
@@ -79,97 +68,42 @@ class Scenes: NSObject {
     func switchScenes() {
         guard self.scenes.count > 1 else { return }
         let index = self.nextSceneIndex()
-        let (object, selector) = self.scenes[index]
-        object.perform(selector)
+        let scene = self.scenes[index]
+        self.controller?.scene = scene
     }
 
     // MARK: Default scenes
 
-    @objc
-    private func none() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .none
-        controller.pixellateAmount = .none
-        controller.textureImage = nil
+    private func none() -> Scene {
+        let scene = Scene()
+        scene.boxOpacity = .none
+        scene.pixellateAmount = .none
+        scene.textureImage = nil
+        return scene
     }
 
-    @objc
-    private func blockyFace() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .full
-        controller.textureImage = nil
+    private func blockyFace() -> Scene {
+        let scene = Scene()
+        scene.boxOpacity = .full
+        scene.pixellateAmount = .full
+        scene.textureImage = nil
+        return scene
     }
 
-    @objc
-    private func chunkyFace() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .some
-        controller.textureImage = nil
+    private func chunkyFace() -> Scene {
+        let scene = Scene()
+        scene.boxOpacity = .full
+        scene.pixellateAmount = .some
+        scene.textureImage = nil
+        return scene
     }
 
-    @objc
-    private func clearFace() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .none
-        controller.textureImage = nil
-    }
-
-    @objc
-    private func rumblemunkFull() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "Rumblemunk")?.cgImage
-    }
-
-    @objc
-    private func rumblemunkSome() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .some
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "Rumblemunk")?.cgImage
-    }
-
-    @objc
-    private func ripe() {
-        guard let controller = self.controller else { return }
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "RIPE")?.cgImage
-    }
-
-    @objc
-    private func sanrioFull() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "Sanrio")?.cgImage
-    }
-
-    @objc
-    private func sanrioSome() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .some
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "Rumblemunk")?.cgImage
-    }
-
-    @objc
-    private func threeDegreesFull() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "3degrees")?.cgImage
-    }
-
-    @objc
-    private func threeDegreesSome() {
-        guard let controller = self.controller else { return }
-        controller.boxOpacity = .full
-        controller.pixellateAmount = .none
-        controller.textureImage = UIImage(named: "3degrees-hole")?.cgImage
+    private func face() -> Scene {
+        let scene = Scene()
+        scene.boxOpacity = .full
+        scene.pixellateAmount = .none
+        scene.textureImage = nil
+        return scene
     }
 }
 
