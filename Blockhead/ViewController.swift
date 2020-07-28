@@ -33,14 +33,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     private var sceneViewSize = CGSize.zero
     private var orientation = UIInterfaceOrientation.unknown
 
-    private var hudViewIsHidden = false {
-        didSet {
-            self.screenView.isHidden = hudViewIsHidden
-            self.hudView.subviews.forEach { $0.isHidden = hudViewIsHidden }
-            self.sceneView.showsStatistics = !hudViewIsHidden
-        }
-    }
-
     // MARK: Filters
 
     private let context = CIContext()
@@ -89,74 +81,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
             // texture image
             if let image = self.scene.textureImage {
-                self.textureCIImage = CIImage(cgImage: image)
-                self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
-            }
-        }
-    }
-
-    @available(*, deprecated)
-    var boxOpacity: Amount = .full {
-        didSet {
-            self.sceneView.session.delegateQueue?.async {
-                guard let node = self.boxNode else { return }
-                node.opacity = self.boxOpacity.floatValue
-            }
-        }
-    }
-
-    @available(*, deprecated)
-    var faceOpacity: Amount = .none {
-        didSet {
-            self.sceneView.session.delegateQueue?.async {
-                guard let node = self.faceNode else { return }
-                node.opacity = self.faceOpacity.floatValue
-            }
-        }
-    }
-
-    @available(*, deprecated)
-    var screenOpacity: Amount = .none {
-        didSet {
-            self.screenView.alpha = self.screenOpacity.floatValue
-        }
-    }
-
-    @available(*, deprecated)
-    var pixellateAmount: Amount = .none {
-        didSet {
-            self.sceneView.session.delegateQueue?.async {
-                var value = 0.0
-                switch self.pixellateAmount {
-                    case .full: value = 32.0; break
-                    case .some: value = 16.0; break
-                    default: value = 0
-                }
-                self.pixellateFilter.setValue(value, forKey: kCIInputScaleKey)
-                self.filter = self.pixellateAmount == .none ? nil : self.pixellateFilter
-            }
-        }
-    }
-
-    @available(*, deprecated)
-    var lights: Amount = .some {
-        didSet {
-            self.sceneView.session.delegateQueue?.async {
-                switch self.lights {
-                    case .full: self.lightNode?.isHidden = false
-                    case .some: self.lightNode?.isHidden = false
-                    case .none: self.lightNode?.isHidden = true
-                }
-            }
-        }
-    }
-
-    // TODO size should be zero if nil
-    @available(*, deprecated)
-    var textureImage: CGImage? {
-        didSet {
-            guard let image = textureImage else { return }
-            self.sceneView.session.delegateQueue?.async {
                 self.textureCIImage = CIImage(cgImage: image)
                 self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
             }
@@ -519,44 +443,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             viewFrame.size.height *= viewToImageRatio
             self.textureView.frame = viewFrame
         }
-    }
-}
-
-// MARK:- Unused code
-
-    // image to texture
-    // coordinates from absolute into percentages i.e. 0 to 1
-//    var textureRect = CGRect.zero
-//    textureRect.origin.x = imageRect.origin.x / CGFloat(bufferWidth)
-//    textureRect.origin.y = imageRect.origin.y / CGFloat(bufferHeight)
-//    textureRect.size.width = imageRect.size.width / CGFloat(bufferWidth)
-//    textureRect.size.height = imageRect.size.height / CGFloat(bufferHeight)
-
-    // TODO transform utility
-    // texture rect to texture coordinates
-//    var textureTransform = SCNMatrix4Identity
-//    let textureScaleX = Float(textureRect.size.width)
-//    let textureScaleY = Float(textureRect.size.height)
-//    textureTransform = SCNMatrix4Scale(textureTransform, textureScaleX, textureScaleY, 1.0)
-//    let textureTranslateX = Float(textureRect.origin.x)
-//    let textureTranslateY = Float(textureRect.origin.y)
-//    textureTransform = SCNMatrix4Translate(textureTransform, textureTranslateX, textureTranslateY, 0)
-
-//        boxNode.geometry?.firstMaterial?.diffuse.contentsTransform = textureTransform
-
-// MARK:-
-
-extension SCNVector3 {
-
-    static func distanceFrom(vector vector1: SCNVector3, toVector vector2: SCNVector3) -> Float {
-        let x0 = vector1.x
-        let x1 = vector2.x
-        let y0 = vector1.y
-        let y1 = vector2.y
-        let z0 = vector1.z
-        let z1 = vector2.z
-
-        return sqrtf(powf(x1-x0, 2) + powf(y1-y0, 2) + powf(z1-z0, 2))
     }
 }
 
