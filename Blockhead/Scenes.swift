@@ -24,11 +24,9 @@ class Scenes: NSObject {
     var isSwitchingScenes = false {
         didSet {
             if isSwitchingScenes {
-                Timer.scheduledTimer(withTimeInterval: 14.72, repeats: true) {
+                Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) {
                     timer in
-                    // TODO invalidate timer when turned off?
-                    guard self.isSwitchingScenes else { return }
-                    self.switchScenes()
+                    self.isSwitchingScenes ? self.switchScenes() : timer.invalidate()
                 }
             }
         }
