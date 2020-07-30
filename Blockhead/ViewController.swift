@@ -72,12 +72,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.pixellateFilter.setValue(value, forKey: kCIInputScaleKey)
             self.filter = self.scene.pixellateAmount == .none ? nil : self.pixellateFilter
 
-            // light amount
-            switch self.scene.lights {
-                case .full: self.lightNode?.isHidden = false
-                case .some: self.lightNode?.isHidden = false
-                case .none: self.lightNode?.isHidden = true
-            }
+            // light amount i.e. color and isHidden
+            let lightIsHidden = self.scene.lights == .none
+            self.lightNode?.isHidden = lightIsHidden
+            self.lightNode?.light?.temperature = self.scene.lights == .full ? 6500.0 : 4500.0
 
             // texture image
             if let image = self.scene.textureImage {
@@ -127,7 +125,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.hudView.addGestureRecognizer(singleTap)
 
         // scenes
-        Scenes.shared.isSwitchingScenes = true
+        Scenes.shared.isSwitchingScenes = false
         Scenes.shared.controller = self
         self.applyCurrentScene()
     }
@@ -197,6 +195,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.applyCurrentScene()
     }
 
+    @IBAction
+    func timerButtonTouchUpInside(button: UIButton) {
+        button.isSelected = !button.isSelected
+        Scenes.shared.isSwitchingScenes = button.isSelected
+    }
+
     @objc func hudViewSingleTap(gesture: UITapGestureRecognizer) {
         self.scene.hudViewIsHidden = !self.scene.hudViewIsHidden
         self.applyCurrentScene()
@@ -255,7 +259,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.sceneView.pointOfView?.addChildNode(planeNode)
 
         // done
-        self.update(boxNode, with: faceNode)
         return faceNode
     }
 
@@ -292,6 +295,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let boxNode = self.boxNode else { return }
         boxNode.physicsBody?.clearAllForces()
         boxNode.physicsBody = nil
+
+        // update face and box
         self.update(boxNode, with: node)
     }
 

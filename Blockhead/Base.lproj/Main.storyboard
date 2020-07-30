@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17140" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17115"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,14 +23,14 @@
                             <view alpha="0.0" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AXi-WU-NKj" userLabel="Screen View">
                                 <rect key="frame" x="143" y="384" width="128" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="systemRedColor"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="peO-pV-AHJ">
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ZeP-ld-GFO">
                                         <rect key="frame" x="20" y="20" width="128" height="128"/>
-                                        <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" systemColor="systemRedColor"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="128" id="Pmq-vi-cTv"/>
                                             <constraint firstAttribute="height" constant="128" id="oeQ-a7-BCE"/>
@@ -96,11 +98,27 @@
                                             <action selector="lightsButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Vng-pt-V6C"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="93F-Eh-xFd">
+                                        <rect key="frame" x="72" y="260" width="44" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="Lsv-Oz-54Q"/>
+                                            <constraint firstAttribute="width" constant="44" id="cfJ-hg-hgx"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="rhi-is-SWo"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="wWg-gz-6aI"/>
+                                        </constraints>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" image="Timer-off"/>
+                                        <state key="selected" image="Timer-on"/>
+                                        <connections>
+                                            <action selector="timerButtonTouchUpInsideButton:" destination="BV1-FR-VrT" eventType="touchUpInside" id="1CF-Xe-hIc"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="O55-eF-ESD" firstAttribute="top" secondItem="1WM-sU-qfb" secondAttribute="bottom" constant="8" id="2Yl-Y7-RER"/>
                                     <constraint firstItem="1WM-sU-qfb" firstAttribute="top" secondItem="Fvk-oM-jxp" secondAttribute="bottom" constant="8" id="447-Gr-Sjp"/>
                                     <constraint firstItem="Fvk-oM-jxp" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="8" id="GBK-5E-nJU"/>
+                                    <constraint firstItem="93F-Eh-xFd" firstAttribute="leading" secondItem="O55-eF-ESD" secondAttribute="trailing" constant="8" symbolic="YES" id="P7b-WL-TGo"/>
                                     <constraint firstItem="JU5-DV-shj" firstAttribute="leading" secondItem="1WM-sU-qfb" secondAttribute="trailing" constant="8" id="Qor-p7-oht"/>
                                     <constraint firstItem="Fvk-oM-jxp" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="Rau-wF-ka9"/>
                                     <constraint firstItem="7ar-hS-DTi" firstAttribute="top" secondItem="ZeP-ld-GFO" secondAttribute="bottom" constant="8" id="TcI-qf-a2x"/>
@@ -109,11 +127,13 @@
                                     <constraint firstItem="7ar-hS-DTi" firstAttribute="leading" secondItem="Fvk-oM-jxp" secondAttribute="trailing" constant="8" id="f03-Pz-Gq4"/>
                                     <constraint firstItem="ZeP-ld-GFO" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="rz7-2D-kNx"/>
                                     <constraint firstItem="1WM-sU-qfb" firstAttribute="leading" secondItem="peO-pV-AHJ" secondAttribute="leading" constant="20" id="u3E-fV-S4Q"/>
+                                    <constraint firstItem="93F-Eh-xFd" firstAttribute="top" secondItem="JU5-DV-shj" secondAttribute="bottom" constant="8" symbolic="YES" id="wHg-h9-Mkj"/>
                                     <constraint firstItem="JU5-DV-shj" firstAttribute="top" secondItem="7ar-hS-DTi" secondAttribute="bottom" constant="8" id="yAF-sm-8xg"/>
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="peO-pV-AHJ" secondAttribute="trailing" id="TH0-ai-X99"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="Umz-t1-CKx"/>
@@ -124,7 +144,6 @@
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="peO-pV-AHJ" secondAttribute="bottom" id="pRR-qZ-RhG"/>
                             <constraint firstItem="peO-pV-AHJ" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" id="s4n-9l-Ls7"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                     </view>
                     <connections>
                         <outlet property="hudView" destination="peO-pV-AHJ" id="Ant-5F-Yll"/>
@@ -146,5 +165,13 @@
         <image name="Lights-full" width="44" height="44"/>
         <image name="Pixellate-full" width="44" height="44"/>
         <image name="Screen-full" width="44" height="44"/>
+        <image name="Timer-off" width="44" height="44"/>
+        <image name="Timer-on" width="44" height="44"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>
