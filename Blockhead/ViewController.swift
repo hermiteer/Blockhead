@@ -115,11 +115,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                                         autoreleaseFrequency: .workItem,
                                                         target: nil)
         
-        // Create a new scene
+        // view with scene
         let scene = SCNScene()
-        scene.physicsWorld.gravity = SCNVector3(0, 0, 0)
-        
-        // Set the scene to the view
         sceneView.scene = scene
 
         // initial values
@@ -256,13 +253,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.lightNode = lightNode
 
         // wall node
-        let plane = SCNPlane(width: 10.0, height: 10.0)
-        plane.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
-        let planeNode = SCNNode(geometry: plane)
-        planeNode.castsShadow = true
-        planeNode.position = SCNVector3(0, 0, -2.0)
-        planeNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.pointOfView?.addChildNode(planeNode)
+        let wall = SCNPlane(width: 2, height: 1)
+//        wall.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
+        wall.firstMaterial?.diffuse.contents = UIColor.white
+        let wallNode = SCNNode(geometry: wall)
+        wallNode.position = SCNVector3(0, 0, -2)
+        wallNode.physicsBody = SCNPhysicsBody.static()
+        self.sceneView.pointOfView?.addChildNode(wallNode)
+
+        // floor node
+        let floor = SCNPlane(width: 2, height: 2)
+//        floor.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
+        floor.firstMaterial?.diffuse.contents = UIColor.red
+        let floorNode = SCNNode(geometry: floor)
+        floorNode.position = SCNVector3(0, -0.5, -1)
+        floorNode.rotation = SCNVector4(1, 0, 0, Double.pi / -2)
+        floorNode.physicsBody = SCNPhysicsBody.static()
+        self.sceneView.pointOfView?.addChildNode(floorNode)
 
         // done
         return faceNode
@@ -276,16 +283,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let node = self.boxNode else { return }
 
         // create physics
+        // body needs to be recreated each time
         guard node.physicsBody == nil else { return }
         let body = SCNPhysicsBody.dynamic()
         body.angularDamping = 0.5
         body.damping = 0.5
-        body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
         node.physicsBody = body
 
-        // apply impluses
+        // float impulses
+        body.isAffectedByGravity = false
+        body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
         body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
         body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+
+        // drop impulse
+//        body.isAffectedByGravity = true
+//        body.applyForce(SCNVector3(0, 0, 0.1), asImpulse: true)
     }
 
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
@@ -296,8 +309,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let faceGeometry = node.geometry as? ARSCNFaceGeometry else { return }
         faceGeometry.update(from: faceAnchor.geometry)
 
-        // update box node
-        // stop any physics
+        // update box node and remove physics
         guard let boxNode = self.boxNode else { return }
         boxNode.physicsBody?.clearAllForces()
         boxNode.physicsBody = nil
@@ -306,6 +318,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.update(boxNode, with: node)
     }
 
+    // TODO rename updateTexture
     private func update(_ boxNode: SCNNode, with faceNode: SCNNode) {
 
         // increment force
