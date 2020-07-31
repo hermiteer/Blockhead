@@ -93,13 +93,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     // MARK: Lifecycle
 
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return true
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // configure scene view
-        sceneView.delegate = self
         sceneView.autoenablesDefaultLighting = false
         sceneView.automaticallyUpdatesLighting = false
+        sceneView.delegate = self
+        sceneView.rendersCameraGrain = true
+        sceneView.rendersMotionBlur = true
         sceneView.showsStatistics = true
 
         // configure scene view session
