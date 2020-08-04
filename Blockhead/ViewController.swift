@@ -77,8 +77,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.lightNode?.isHidden = lightIsHidden
             self.lightNode?.light?.temperature = self.scene.lights == .full ? 6500.0 : 4500.0
 
-            // texture image
-            if let image = self.scene.textureImage {
+            // box texture image
+            if let image = self.scene.boxTexture {
                 self.textureCIImage = CIImage(cgImage: image)
                 self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
             }
@@ -146,6 +146,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let configuration = ARFaceTrackingConfiguration()
         configuration.maximumNumberOfTrackedFaces = 1
         configuration.isLightEstimationEnabled = true
+        configuration.isWorldTrackingEnabled = true
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -255,21 +256,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // wall node
         let wall = SCNPlane(width: 2, height: 1)
 //        wall.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
-        wall.firstMaterial?.diffuse.contents = UIColor.white
+        wall.firstMaterial?.diffuse.contents = UIColor.red
         let wallNode = SCNNode(geometry: wall)
         wallNode.position = SCNVector3(0, 0, -2)
         wallNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.pointOfView?.addChildNode(wallNode)
+        self.sceneView.scene.rootNode.addChildNode(wallNode)
 
+        // TODO nil physics body will not allow bump
         // floor node
         let floor = SCNPlane(width: 2, height: 2)
 //        floor.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
         floor.firstMaterial?.diffuse.contents = UIColor.red
         let floorNode = SCNNode(geometry: floor)
-        floorNode.position = SCNVector3(0, -0.5, -1)
+        floorNode.position = SCNVector3(0, -0.25, -1)
         floorNode.rotation = SCNVector4(1, 0, 0, Double.pi / -2)
         floorNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.pointOfView?.addChildNode(floorNode)
+        self.sceneView.scene.rootNode.addChildNode(floorNode)
 
         // done
         return faceNode
@@ -290,15 +292,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         body.damping = 0.5
         node.physicsBody = body
 
+        // TODO does this get called twice somehow?
+        // determine the untracked behaviour
+        let behaviour = self.scene.currentUntrackedBehaviour()
+
+        // TODO drift action?
         // float impulses
-        body.isAffectedByGravity = false
-        body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
-        body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
-        body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+        if behaviour == .float {
+            body.isAffectedByGravity = false
+            body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
+            body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
+            body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+//            node.driftForever(TimeInterval(.wholeNote, bpm: 130))
+        }
 
         // drop impulse
-//        body.isAffectedByGravity = true
-//        body.applyForce(SCNVector3(0, 0, 0.1), asImpulse: true)
+        if behaviour == .drop {
+            body.isAffectedByGravity = true
+//            node.bumpForever(TimeInterval(.quarterNote, bpm: 130))
+        }
     }
 
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
@@ -309,10 +321,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let faceGeometry = node.geometry as? ARSCNFaceGeometry else { return }
         faceGeometry.update(from: faceAnchor.geometry)
 
-        // update box node and remove physics
+        // update box node and remove physics and actions
         guard let boxNode = self.boxNode else { return }
         boxNode.physicsBody?.clearAllForces()
         boxNode.physicsBody = nil
+        boxNode.removeAllActions()
 
         // update face and box
         self.update(boxNode, with: node)
