@@ -77,8 +77,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             self.lightNode?.isHidden = lightIsHidden
             self.lightNode?.light?.temperature = self.scene.lights == .full ? 6500.0 : 4500.0
 
-            // texture image
-            if let image = self.scene.textureImage {
+            // box texture image
+            if let image = self.scene.boxTexture {
                 self.textureCIImage = CIImage(cgImage: image)
                 self.textureCIRect = CGRect(x: 0, y: 0, width: image.width, height: image.height)
             }
@@ -93,13 +93,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     // MARK: Lifecycle
 
+    override var prefersHomeIndicatorAutoHidden: Bool {
+        return true
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // configure scene view
-        sceneView.delegate = self
         sceneView.autoenablesDefaultLighting = false
         sceneView.automaticallyUpdatesLighting = false
+        sceneView.delegate = self
+        sceneView.rendersCameraGrain = true
+        sceneView.rendersMotionBlur = true
         sceneView.showsStatistics = true
 
         // configure scene view session
@@ -109,11 +115,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                                                         autoreleaseFrequency: .workItem,
                                                         target: nil)
         
-        // Create a new scene
+        // view with scene
         let scene = SCNScene()
-        scene.physicsWorld.gravity = SCNVector3(0, 0, 0)
-        
-        // Set the scene to the view
         sceneView.scene = scene
 
         // initial values
@@ -143,6 +146,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let configuration = ARFaceTrackingConfiguration()
         configuration.maximumNumberOfTrackedFaces = 1
         configuration.isLightEstimationEnabled = true
+        configuration.isWorldTrackingEnabled = true
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -249,15 +253,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.sceneView.pointOfView?.addChildNode(lightNode)
         self.lightNode = lightNode
 
-        // wall node
-        let plane = SCNPlane(width: 10.0, height: 10.0)
-        plane.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
-        let planeNode = SCNNode(geometry: plane)
-        planeNode.castsShadow = true
-        planeNode.position = SCNVector3(0, 0, -2.0)
-        planeNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.pointOfView?.addChildNode(planeNode)
-
         // done
         return faceNode
     }
@@ -270,16 +265,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let node = self.boxNode else { return }
 
         // create physics
+        // body needs to be recreated each time
         guard node.physicsBody == nil else { return }
         let body = SCNPhysicsBody.dynamic()
         body.angularDamping = 0.5
         body.damping = 0.5
-        body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
         node.physicsBody = body
 
-        // apply impluses
-        body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
-        body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+        // determine the untracked behaviour
+        let behaviour = self.scene.currentUntrackedBehaviour()
+
+        // float impulses
+        if behaviour == .float {
+            body.isAffectedByGravity = false
+            body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
+            body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
+            body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
+        }
+
+        // drop impulse
+        if behaviour == .drop {
+            body.isAffectedByGravity = true
+        }
     }
 
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
@@ -290,16 +297,17 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         guard let faceGeometry = node.geometry as? ARSCNFaceGeometry else { return }
         faceGeometry.update(from: faceAnchor.geometry)
 
-        // update box node
-        // stop any physics
+        // update box node and remove physics and actions
         guard let boxNode = self.boxNode else { return }
         boxNode.physicsBody?.clearAllForces()
         boxNode.physicsBody = nil
+        boxNode.removeAllActions()
 
         // update face and box
         self.update(boxNode, with: node)
     }
 
+    // TODO rename updateTexture
     private func update(_ boxNode: SCNNode, with faceNode: SCNNode) {
 
         // increment force
