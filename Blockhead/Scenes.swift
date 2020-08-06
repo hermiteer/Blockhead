@@ -76,7 +76,6 @@ class Scenes: NSObject {
         let scene = Scene()
         scene.boxOpacity = .none
         scene.pixellateAmount = .none
-        scene.boxTexture = nil
         return scene
     }
 
@@ -84,7 +83,6 @@ class Scenes: NSObject {
         let scene = Scene()
         scene.boxOpacity = .full
         scene.pixellateAmount = .full
-        scene.boxTexture = nil
         return scene
     }
 
@@ -92,7 +90,6 @@ class Scenes: NSObject {
         let scene = Scene()
         scene.boxOpacity = .full
         scene.pixellateAmount = .some
-        scene.boxTexture = nil
         return scene
     }
 
@@ -100,7 +97,6 @@ class Scenes: NSObject {
         let scene = Scene()
         scene.boxOpacity = .full
         scene.pixellateAmount = .none
-        scene.boxTexture = nil
         return scene
     }
 }

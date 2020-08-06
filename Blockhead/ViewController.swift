@@ -292,24 +292,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         body.damping = 0.5
         node.physicsBody = body
 
-        // TODO does this get called twice somehow?
         // determine the untracked behaviour
         let behaviour = self.scene.currentUntrackedBehaviour()
 
-        // TODO drift action?
         // float impulses
         if behaviour == .float {
             body.isAffectedByGravity = false
             body.velocityFactor = SCNVector3(5.0, 5.0, 5.0)
             body.applyForce(self.boxNodeForce.sum(), asImpulse: true)
             body.applyTorque(self.boxNodeTorque.sum(), asImpulse: true)
-//            node.driftForever(TimeInterval(.wholeNote, bpm: 130))
         }
 
         // drop impulse
         if behaviour == .drop {
             body.isAffectedByGravity = true
-//            node.bumpForever(TimeInterval(.quarterNote, bpm: 130))
         }
     }
 

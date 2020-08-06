@@ -13,18 +13,16 @@ class Scene {
 
     enum UntrackedBehaviour: Int, CaseIterable {
 
-//        case drift
-//        case dropAndBump
         case drop
         case float
         case random  // this must always be last
 
         // Returns a random case EXCEPT for the last "random" case.
         static func random() -> UntrackedBehaviour {
-            guard UntrackedBehaviour.allCases.count > 1 else { return .drift }
+            guard UntrackedBehaviour.allCases.count > 1 else { return .float }
             let count = UntrackedBehaviour.allCases.count - 1
             let value = Int.random(in: 0..<count)
-            return UntrackedBehaviour(rawValue: value) ?? .drift
+            return UntrackedBehaviour(rawValue: value) ?? .float
         }
     }
 
