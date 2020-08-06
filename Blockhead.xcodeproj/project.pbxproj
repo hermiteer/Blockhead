@@ -16,6 +16,7 @@
 		5316431924CF66C40082F5C2 /* SCNVector4+Blockhead.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53DA8A0C24C8B33F0022243E /* SCNVector4+Blockhead.swift */; };
 		5316431B24CF6D250082F5C2 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5316431A24CF6D250082F5C2 /* Scene.swift */; };
 		5316431C24CF6D250082F5C2 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5316431A24CF6D250082F5C2 /* Scene.swift */; };
+		536BC6D424DC71A400AACF13 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536BC6D324DC71A400AACF13 /* Nodes.swift */; };
 		539273FB24D894FF00FCCE07 /* TimeInterval+BPM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539273FA24D894FF00FCCE07 /* TimeInterval+BPM.swift */; };
 		539273FC24D897AE00FCCE07 /* TimeInterval+BPM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539273FA24D894FF00FCCE07 /* TimeInterval+BPM.swift */; };
 		5398F4BF24D8AEF100458C13 /* SCNNode+Bump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5398F4BE24D8AEF100458C13 /* SCNNode+Bump.swift */; };
@@ -47,6 +48,7 @@
 		5316430D24CF65140082F5C2 /* BlockheadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockheadTests.swift; sourceTree = "<group>"; };
 		5316430F24CF65140082F5C2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5316431A24CF6D250082F5C2 /* Scene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
+		536BC6D324DC71A400AACF13 /* Nodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nodes.swift; sourceTree = "<group>"; };
 		539273FA24D894FF00FCCE07 /* TimeInterval+BPM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+BPM.swift"; sourceTree = "<group>"; };
 		5398F4BE24D8AEF100458C13 /* SCNNode+Bump.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCNNode+Bump.swift"; sourceTree = "<group>"; };
 		5398F4C024D8B05500458C13 /* SCNNode+Drift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCNNode+Drift.swift"; sourceTree = "<group>"; };
@@ -120,14 +122,15 @@
 				53C4F59F24B3ACE800AC2C88 /* Info.plist */,
 				53C4F59C24B3ACE800AC2C88 /* LaunchScreen.storyboard */,
 				53C4F59724B3ACE700AC2C88 /* Main.storyboard */,
+				536BC6D324DC71A400AACF13 /* Nodes.swift */,
 				5316431A24CF6D250082F5C2 /* Scene.swift */,
 				530DEF3B24CB582D00900AE3 /* Scenes.swift */,
+				5398F4BE24D8AEF100458C13 /* SCNNode+Bump.swift */,
+				5398F4C024D8B05500458C13 /* SCNNode+Drift.swift */,
 				53DA8A0A24C8ABAF0022243E /* SCNVector3+Blockhead.swift */,
 				53DA8A0C24C8B33F0022243E /* SCNVector4+Blockhead.swift */,
 				539273FA24D894FF00FCCE07 /* TimeInterval+BPM.swift */,
 				53C4F59524B3ACE700AC2C88 /* ViewController.swift */,
-				5398F4BE24D8AEF100458C13 /* SCNNode+Bump.swift */,
-				5398F4C024D8B05500458C13 /* SCNNode+Drift.swift */,
 			);
 			path = Blockhead;
 			sourceTree = "<group>";
@@ -259,6 +262,7 @@
 				539273FB24D894FF00FCCE07 /* TimeInterval+BPM.swift in Sources */,
 				5398F4BF24D8AEF100458C13 /* SCNNode+Bump.swift in Sources */,
 				53DA8A0D24C8B33F0022243E /* SCNVector4+Blockhead.swift in Sources */,
+				536BC6D424DC71A400AACF13 /* Nodes.swift in Sources */,
 				5316431B24CF6D250082F5C2 /* Scene.swift in Sources */,
 				53F159DA24C25116008054ED /* CVPixelBuffer+Blockhead.swift in Sources */,
 				53C4F59224B3ACE700AC2C88 /* AppDelegate.swift in Sources */,

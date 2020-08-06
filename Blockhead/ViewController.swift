@@ -253,26 +253,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.sceneView.pointOfView?.addChildNode(lightNode)
         self.lightNode = lightNode
 
-        // wall node
-        let wall = SCNPlane(width: 2, height: 1)
-//        wall.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
-        wall.firstMaterial?.diffuse.contents = UIColor.red
-        let wallNode = SCNNode(geometry: wall)
-        wallNode.position = SCNVector3(0, 0, -2)
-        wallNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.scene.rootNode.addChildNode(wallNode)
-
-        // TODO nil physics body will not allow bump
-        // floor node
-        let floor = SCNPlane(width: 2, height: 2)
-//        floor.firstMaterial?.colorBufferWriteMask = SCNColorMask.alpha
-        floor.firstMaterial?.diffuse.contents = UIColor.red
-        let floorNode = SCNNode(geometry: floor)
-        floorNode.position = SCNVector3(0, -0.25, -1)
-        floorNode.rotation = SCNVector4(1, 0, 0, Double.pi / -2)
-        floorNode.physicsBody = SCNPhysicsBody.static()
-        self.sceneView.scene.rootNode.addChildNode(floorNode)
-
         // done
         return faceNode
     }
